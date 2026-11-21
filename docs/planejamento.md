@@ -1,6 +1,6 @@
 # Planejamento do portfólio
 
-**Status:** planejamento visual, funcional e técnico concluído; referências visuais e direção dos painéis aprovadas; quatro skills especializadas criadas. A implementação ainda não foi iniciada. Este documento é a referência oficial do projeto.
+**Status:** planejamento visual, funcional e técnico concluído; referências visuais e direção dos painéis aprovadas; quatro skills especializadas criadas; scaffold técnico inicial concluído e validado. A implementação das funcionalidades do portfólio ainda não foi iniciada. Este documento é a referência oficial do projeto.
 
 ## 1. Conceito e objetivos
 
@@ -224,7 +224,7 @@ Esses detalhes permanecem abertos e devem respeitar as decisões já aprovadas. 
 - O estado da aplicação será gerenciado pelos recursos locais do React; não está previsto um gerenciador externo de estado.
 - O conteúdo profissional será mantido como dados locais versionados, com versões em português e inglês.
 - Cenário e personagem são camadas visuais. Textos, ações, hotspots e painéis permanecem no DOM para suportar semântica, teclado e tecnologias assistivas.
-- Vitest e Playwright estão aprovados para uso na implementação futura, mas ainda não foram instalados.
+- Vitest e Playwright estão instalados e configurados no scaffold inicial. Os testes iniciais foram executados com sucesso; a verificação de TypeScript e o build de produção também passaram. A cobertura atual é apenas de confirmação do scaffold, não das funcionalidades ainda não implementadas.
 
 ## 12. Estado e próxima etapa
 
@@ -237,4 +237,6 @@ As quatro skills especializadas já foram criadas em `.agents/skills/`:
 - [responsive-accessibility](../.agents/skills/responsive-accessibility/SKILL.md)
 - [testing-quality](../.agents/skills/testing-quality/SKILL.md)
 
-A implementação de código, instalação de dependências, produção de assets finais e deploy ainda não foram iniciados.
+O scaffold inicial foi criado com React, Vite e TypeScript configurados, além de Vitest e Playwright instalados e configurados. Os testes iniciais passaram, a verificação de TypeScript passou e o build de produção foi executado com sucesso. A estrutura técnica inicial está concluída e validada.
+
+Essa conclusão cobre somente a estrutura técnica inicial. A implementação das funcionalidades do portfólio — incluindo os modos jogo e institucional, cenário, movimentação, painéis e conteúdo — ainda não começou. A produção de assets finais e o deploy também permanecem pendentes.

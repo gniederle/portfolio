@@ -1,0 +1,256 @@
+.section {
+  padding-block: clamp(3.8rem, 8vw, 6rem);
+  border-bottom: 1px solid var(--color-border);
+  scroll-margin-top: calc(var(--institutional-nav-offset) + 0.75rem);
+}
+
+.sectionHeading {
+  max-width: 42rem;
+  margin-bottom: 2.5rem;
+}
+
+.kicker {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  margin: 0 0 0.85rem;
+  color: var(--color-accent-dark);
+  font-size: 0.68rem;
+  font-weight: 750;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.kicker span {
+  color: var(--color-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.sectionHeading h2 {
+  margin: 0;
+  color: var(--color-text);
+  font-size: clamp(1.9rem, 4vw, 3.2rem);
+  font-weight: 610;
+  letter-spacing: -0.06em;
+  line-height: 1.08;
+  text-wrap: balance;
+}
+
+.sectionIntro {
+  max-width: 38rem;
+  margin: 0.9rem 0 0;
+  color: var(--color-muted);
+  line-height: 1.7;
+}
+
+.careerList {
+  display: grid;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.careerItem {
+  display: grid;
+  grid-template-columns: minmax(11rem, 0.42fr) minmax(0, 1fr);
+  gap: clamp(1.25rem, 4vw, 3.5rem);
+  padding-block: 1.6rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.careerMeta {
+  padding-top: 0.25rem;
+}
+
+.period,
+.location {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 0.82rem;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.55;
+}
+
+.location {
+  margin-top: 0.3rem;
+  font-size: 0.76rem;
+}
+
+.careerBody h3,
+.educationItem h3 {
+  margin: 0;
+  color: var(--color-text);
+  font-size: 1.18rem;
+  font-weight: 680;
+  letter-spacing: -0.025em;
+  line-height: 1.35;
+}
+
+.role {
+  margin: 0.25rem 0 0;
+  color: var(--color-accent-dark);
+  font-size: 0.84rem;
+  font-weight: 620;
+}
+
+.bodyCopy {
+  margin: 0.85rem 0 0;
+  color: var(--color-muted);
+  font-size: 0.93rem;
+  line-height: 1.7;
+}
+
+.skillGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0 2rem;
+}
+
+.skillGroup {
+  padding-block: 1.25rem 1.4rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.skillGroup h3 {
+  margin: 0 0 0.9rem;
+  color: var(--color-text);
+  font-size: 0.95rem;
+  font-weight: 680;
+}
+
+.skillList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.skillList li {
+  max-width: 100%;
+  padding: 0.36rem 0.62rem;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  color: var(--color-text);
+  font-size: 0.76rem;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.careerDetails {
+  display: grid;
+  gap: 0.65rem;
+  margin: 1rem 0 0;
+  padding-left: 1.1rem;
+  color: var(--color-muted);
+  font-size: 0.88rem;
+  line-height: 1.6;
+}
+
+.careerDetails li::marker {
+  color: var(--color-accent);
+}
+
+.careerTechnologies {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin: 1.15rem 0 0;
+  padding: 0.95rem 0 0;
+  border-top: 1px solid var(--color-border);
+  list-style: none;
+}
+
+.careerTechnologies li {
+  max-width: 100%;
+  padding: 0.28rem 0.5rem;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: var(--color-accent-soft);
+  color: var(--color-accent-dark);
+  font-size: 0.7rem;
+  font-weight: 620;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.educationList {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.25rem 2rem;
+}
+
+.educationItem {
+  display: grid;
+  grid-template-columns: 0.25rem minmax(0, 1fr);
+  gap: 1rem;
+  min-width: 0;
+  padding-top: 1.1rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.educationRule {
+  width: 0.2rem;
+  height: 100%;
+  min-height: 4rem;
+  border-radius: 999px;
+  background: var(--color-accent);
+}
+
+.educationItem .period {
+  margin-bottom: 0.55rem;
+}
+
+.educationItem h3 {
+  font-size: 1rem;
+}
+
+.educationMeta {
+  margin: 0.8rem 0 0;
+  color: var(--color-muted);
+  font-size: 0.78rem;
+}
+
+@media (max-width: 54rem) {
+  .skillGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0 1.5rem;
+  }
+}
+
+@media (max-width: 42rem) {
+  .careerItem {
+    grid-template-columns: 1fr;
+    gap: 0.6rem;
+  }
+
+  .careerMeta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 0.75rem;
+  }
+
+  .location {
+    margin-top: 0;
+  }
+
+  .educationList {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 30rem) {
+  .section {
+    padding-block: 3.25rem;
+  }
+
+  .sectionHeading {
+    margin-bottom: 1.7rem;
+  }
+
+  .skillGrid {
+    grid-template-columns: 1fr;
+  }
+}

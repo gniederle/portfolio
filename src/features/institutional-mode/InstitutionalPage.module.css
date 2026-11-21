@@ -1,0 +1,47 @@
+.page {
+  --institutional-nav-offset: 5.5rem;
+  min-height: 100vh;
+  padding-bottom: 1rem;
+}
+
+.main,
+.footerWrap {
+  width: min(100% - 3rem, 76rem);
+  margin-inline: auto;
+}
+
+.skipLink {
+  position: absolute;
+  z-index: 40;
+  top: 0.75rem;
+  left: 0.75rem;
+  padding: 0.7rem 1rem;
+  transform: translateY(-180%);
+  border-radius: var(--radius-small);
+  background: var(--color-accent-dark);
+  color: #fff;
+  font-size: 0.88rem;
+  font-weight: 650;
+  text-decoration: none;
+}
+
+.skipLink:focus {
+  transform: translateY(0);
+}
+
+@media (max-width: 42rem) {
+  .page {
+    --institutional-nav-offset: 11rem;
+  }
+
+  .main,
+  .footerWrap {
+    width: min(100% - 2rem, 76rem);
+  }
+}
+
+@media (min-width: 42.001rem) and (max-width: 54rem) {
+  .page {
+    --institutional-nav-offset: 8rem;
+  }
+}

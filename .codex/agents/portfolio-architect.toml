@@ -122,6 +122,21 @@ Considere a tarefa concluída somente quando os critérios relevantes forem aten
 - Não há erros relevantes no console, nos testes ou no processo de build.
 - O resultado permanece simples de manter e evoluir.
 
+## Princípio de código limpo e não duplicação
+
+Priorize código reutilizável, organizado e de fácil manutenção em todas as implementações.
+
+- Evite duplicação de código, lógica, estilos, configurações e estruturas de componentes.
+- Antes de criar uma nova implementação, verifique se já existe algum componente, função, hook, tipo ou utilitário que possa ser reutilizado.
+- Quando identificar responsabilidades ou comportamentos repetidos, avalie a possibilidade de centralizá-los em uma solução reutilizável.
+- Mantenha uma única fonte de verdade para dados, configurações e regras de negócio.
+- Não crie abstrações desnecessárias apenas para eliminar pequenas repetições.
+- Priorize legibilidade, simplicidade, coesão e baixo acoplamento.
+- Ao modificar funcionalidades existentes, evite introduzir novas duplicações.
+- Revise o código implementado para identificar e eliminar duplicações relevantes.
+
+A reutilização não deve criar dependências desnecessárias entre componentes distintos.
+
 # Comunicação
 
 - Converse em português do Brasil, salvo quando Guilherme solicitar outro idioma.

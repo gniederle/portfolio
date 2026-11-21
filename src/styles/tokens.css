@@ -11,6 +11,9 @@
   --color-muted: #58645d;
   --color-border: #d8ded9;
   --color-accent: #28675c;
+  --color-accent-dark: #1f5149;
+  --color-accent-soft: #e8f0ed;
+  --color-border-strong: #b9c9c2;
   --color-focus: #145f9a;
 
   --font-size-small: 0.8125rem;

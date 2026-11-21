@@ -20,3 +20,18 @@ Use this skill for frontend architecture and implementation work in this portfol
 ## When changing architecture
 
 Prefer the smallest structure that supports the approved experience. Explain meaningful trade-offs when a proposed change adds a dependency, runtime layer, state system, or deployment requirement. Preserve existing conventions when they remain compatible with the approved architecture. Do not implement unrelated features as part of a refactor.
+
+### Reutilização e prevenção de duplicação
+
+Ao desenvolver funcionalidades com React e TypeScript:
+
+1. Utilize componentes compartilhados quando houver estrutura visual ou comportamento realmente reutilizável.
+2. Extraia lógica compartilhada para hooks ou funções utilitárias quando isso melhorar a organização.
+3. Centralize tipos, interfaces, constantes e configurações que sejam compartilhados.
+4. Evite repetir estruturas JSX, regras de negócio e estilos CSS.
+5. Utilize propriedades e composição de componentes para permitir reutilização sem criar componentes excessivamente genéricos.
+6. Centralize os dados profissionais e suas traduções, evitando manter versões independentes para cada modo de apresentação.
+7. Antes de criar novos arquivos ou componentes, verifique se já existe uma implementação com a mesma responsabilidade.
+8. Ao identificar duplicações, avalie se a extração realmente melhora a manutenção e a legibilidade.
+
+**Importante:** não aplicar abstrações prematuras. Código reutilizável deve resolver uma necessidade real, e não apenas reduzir a quantidade de linhas.

@@ -14,4 +14,6 @@ O currículo em [docs/curriculo.pdf](docs/curriculo.pdf) é a fonte principal pa
 
 ## Estado
 
-Etapa atual: planejamento visual, funcional e técnico concluído; quatro skills especializadas criadas. Implementação, instalação de dependências, produção de assets finais e deploy ainda não foram iniciados.
+Etapa atual: planejamento visual, funcional e técnico concluído; quatro skills especializadas criadas; scaffold técnico inicial criado e validado. React, Vite e TypeScript estão configurados, assim como Vitest e Playwright. Os testes iniciais passaram, a verificação de TypeScript passou e o build de produção foi concluído com sucesso.
+
+A conclusão do scaffold não representa o início da implementação das funcionalidades do portfólio. Modos jogo e institucional, cenário, movimentação, painéis e conteúdo ainda não foram implementados. Assets finais e deploy também permanecem pendentes.
