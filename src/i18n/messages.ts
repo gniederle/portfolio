@@ -6,6 +6,8 @@ export interface InstitutionalMessages {
   skipLink: string;
   navigationLabel: string;
   languageLabel: string;
+  gameMode: string;
+  institutionalMode: string;
   languageNames: Record<Language, string>;
   sectionLabels: Record<PortfolioSectionId, string>;
   sectionKickers: Record<PortfolioSectionId, string>;
@@ -33,6 +35,8 @@ export const institutionalMessages: Record<Language, InstitutionalMessages> = {
     skipLink: 'Pular para o conteúdo principal',
     navigationLabel: 'Navegação principal',
     languageLabel: 'Idioma do site',
+    gameMode: 'Modo jogo',
+    institutionalMode: 'Modo institucional',
     languageNames: { pt: 'Português', en: 'Inglês' },
     sectionLabels: {
       presentation: 'Apresentação',
@@ -72,6 +76,8 @@ export const institutionalMessages: Record<Language, InstitutionalMessages> = {
     skipLink: 'Skip to main content',
     navigationLabel: 'Main navigation',
     languageLabel: 'Website language',
+    gameMode: 'Game mode',
+    institutionalMode: 'Institutional mode',
     languageNames: { pt: 'Portuguese', en: 'English' },
     sectionLabels: {
       presentation: 'About',

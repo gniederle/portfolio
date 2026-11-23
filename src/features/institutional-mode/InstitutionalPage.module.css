@@ -3,7 +3,6 @@
   min-height: 100vh;
   padding-bottom: 1rem;
 }
-
 .main,
 .footerWrap {
   width: min(100% - 3rem, 76rem);
@@ -30,9 +29,7 @@
 }
 
 @media (max-width: 42rem) {
-  .page {
-    --institutional-nav-offset: 11rem;
-  }
+  .page { --institutional-nav-offset: 11rem; }
 
   .main,
   .footerWrap {
@@ -41,7 +38,5 @@
 }
 
 @media (min-width: 42.001rem) and (max-width: 54rem) {
-  .page {
-    --institutional-nav-offset: 8rem;
-  }
+  .page { --institutional-nav-offset: 8rem; }
 }

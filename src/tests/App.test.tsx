@@ -6,20 +6,15 @@ import { InstitutionalPage } from '../features/institutional-mode/InstitutionalP
 import { institutionalMessages } from '../i18n/messages';
 import { institutionalSectionOrder } from '../navigation/sections';
 
-describe('institutional portfolio', () => {
-  it('renders the visible institutional section destinations and approved professional contact details', () => {
+describe('portfolio modes', () => {
+  it('starts in game mode with direct access to the six sections and institutional mode', () => {
     const markup = renderToStaticMarkup(<App />);
 
-    for (const section of institutionalSectionOrder) {
-      expect(markup).toContain(`href="#${section}"`);
-      expect(markup).toContain(`id="${section}"`);
-    }
-
-    expect(markup).not.toContain('id="contributions"');
-    expect(markup).toContain('Guilherme Niederle');
-    expect(markup).toContain('Engenheiro de software');
-    expect(markup).toContain('guiniederle@gmail.com');
-    expect(markup).toContain('+55 49 99810-5000');
+    expect(markup).toContain('Guilherme, personagem do portfólio');
+    expect(markup).toContain('Competências técnicas');
+    expect(markup).toContain('Trabalhos e contribuições');
+    expect(markup).toContain('Modo institucional');
+    expect(markup).toContain('data-testid="game-header"');
   });
 
   it('uses the same professional records for career and contributions', () => {
@@ -37,11 +32,13 @@ describe('institutional portfolio', () => {
         language="en"
         messages={institutionalMessages.en}
         onLanguageChange={() => undefined}
+        onModeChange={() => undefined}
       />,
     );
 
     expect(markup).toContain('Technical skills');
     expect(markup).not.toContain('Work and contributions');
+    expect(markup).toContain('data-testid="institutional-header"');
     expect(markup).not.toContain('id="contributions"');
     expect(markup).toContain('Software engineer');
     expect(markup).toContain('Get in touch');

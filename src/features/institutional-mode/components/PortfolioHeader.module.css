@@ -52,6 +52,24 @@
   border-radius: 999px;
 }
 
+.gameModeButton {
+  flex: 0 0 auto;
+  min-height: 2.75rem;
+  padding: 0.4rem 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  color: var(--color-accent-dark);
+  background: var(--color-surface);
+  cursor: pointer;
+  font-size: 0.75rem;
+  font-weight: 650;
+}
+
+.gameModeButton:hover {
+  border-color: var(--color-border-strong);
+  background: var(--color-accent-soft);
+}
+
 .visuallyHidden {
   position: absolute;
   width: 1px;
@@ -81,16 +99,11 @@
 }
 
 @media (max-width: 54rem) {
-  .navigation {
-    width: min(100% - 2rem, 76rem);
-  }
+  .navigation { width: min(100% - 2rem, 76rem); }
 }
 
 @media (max-width: 42rem) {
-  .navigation {
-    flex-wrap: wrap;
-  }
-
+  .navigation { flex-wrap: wrap; }
   .navigationList {
     display: grid;
     flex: 1 1 100%;
@@ -98,14 +111,6 @@
     gap: 0.1rem 0.6rem;
     padding-block: 0.45rem 0.25rem;
   }
-
-  .navigation a {
-    min-height: 2.75rem;
-    font-size: 0.76rem;
-    line-height: 1.25;
-  }
-
-  .languagePicker {
-    margin: 0 0 0.45rem auto;
-  }
+  .navigation a { min-height: 2.75rem; font-size: 0.76rem; line-height: 1.25; }
+  .languagePicker { margin: 0 0 0.45rem auto; }
 }

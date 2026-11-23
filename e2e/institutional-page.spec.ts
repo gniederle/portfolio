@@ -9,12 +9,14 @@ test('institutional page supports navigation, language, keyboard, and responsive
 
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto('/');
+  await page.getByRole('button', { name: 'Modo institucional' }).click();
   await page.emulateMedia({ reducedMotion: 'no-preference' });
   await expect(page).toHaveTitle(/Guilherme Niederle/);
   await expect(page.getByRole('heading', { level: 1, name: 'Guilherme Niederle' })).toBeVisible();
 
   const navigation = page.getByRole('navigation', { name: 'Navegação principal' });
-  await expect(page.getByRole('banner')).toHaveCSS('position', 'sticky');
+  const institutionalHeader = page.getByTestId('institutional-header');
+  await expect(institutionalHeader).toHaveCSS('position', 'sticky');
   for (const label of [
     'Apresentação',
     'Trajetória profissional',
@@ -25,6 +27,7 @@ test('institutional page supports navigation, language, keyboard, and responsive
     await expect(navigation.getByRole('link', { name: label })).toBeVisible();
   }
   await expect(navigation.getByRole('link', { name: 'Trabalhos e contribuições' })).toHaveCount(0);
+  await expect(institutionalHeader.getByRole('button', { name: 'Modo jogo' })).toBeVisible();
   await expect(page.locator('#contributions')).toHaveCount(0);
   expect(await page.evaluate(() => getComputedStyle(document.documentElement).scrollBehavior)).toBe('smooth');
 
@@ -46,7 +49,7 @@ test('institutional page supports navigation, language, keyboard, and responsive
     await navigation.getByRole('link', { name: label }).click();
     await expect(page).toHaveURL(new RegExp(`#${id}$`));
   }
-  await expect.poll(() => navigation.evaluate((element) => element.getBoundingClientRect().top)).toBe(0);
+  await expect.poll(() => institutionalHeader.evaluate((element) => element.getBoundingClientRect().top)).toBe(0);
 
   await page.getByRole('button', { name: 'Inglês' }).click();
   await expect(page.locator('html')).toHaveAttribute('lang', 'en');
@@ -68,7 +71,11 @@ test('institutional page supports navigation, language, keyboard, and responsive
   await expect(page.locator('html')).toHaveAttribute('lang', 'pt-BR');
 
   for (const viewport of [
+    { width: 2560, height: 1440 },
+    { width: 1366, height: 768 },
+    { width: 1024, height: 768 },
     { width: 768, height: 1024 },
+    { width: 844, height: 390 },
     { width: 390, height: 844 },
     { width: 320, height: 740 },
   ]) {
@@ -77,8 +84,11 @@ test('institutional page supports navigation, language, keyboard, and responsive
     await expect(page.getByRole('navigation', { name: 'Navegação principal' })).toBeVisible();
     const hasHorizontalOverflow = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth);
     expect(hasHorizontalOverflow, `unexpected horizontal overflow at ${viewport.width}px`).toBe(false);
+    await expect(institutionalHeader).toHaveCSS('position', 'sticky');
     if (viewport.width === 390) {
-      await page.screenshot({ path: testInfo.outputPath('institutional-mobile.png'), fullPage: true });
+      await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }));
+      await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0);
+      await page.screenshot({ path: testInfo.outputPath('institutional-mobile.png') });
     }
   }
 

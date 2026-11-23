@@ -1,0 +1,71 @@
+.game {
+  --ink: #2d3a36;
+  --muted-ink: #52635d;
+  --teal: #28675c;
+  --line: #d5dfda;
+  position: relative;
+  width: 100%;
+  height: 100dvh;
+  min-height: 100svh;
+  overflow: hidden;
+  color: var(--ink);
+  background: #f4f5f2;
+}
+.sceneViewport { position: absolute; inset: 0; width: 100%; height: 100%; overflow: hidden; outline-offset: -4px; isolation: isolate; }
+.world { position: absolute; top: 0; left: 0; overflow: hidden; will-change: transform; }
+.landscape { position: absolute; inset: 0; width: 100%; height: 100%; }
+.distantTree { position: absolute; z-index: 1; width: 42px; height: 62px; opacity: 0.8; }
+.distantTree i { position: absolute; width: 27px; height: 23px; border-radius: 40% 40% 12% 12%; background: #668c64; }
+.distantTree i:nth-child(1) { top: 0; left: 7px; }.distantTree i:nth-child(2) { top: 13px; left: 0; }.distantTree i:nth-child(3) { top: 13px; left: 14px; }
+.distantTree b { position: absolute; top: 30px; left: 16px; width: 9px; height: 26px; background: #7e694f; }
+.landmark { position: absolute; z-index: 2; top: 365px; display: grid; justify-items: center; gap: 0.42rem; width: 154px; min-height: 118px; padding: 0 0.4rem; transform: translateX(-50%); color: #394a43; }
+.landmark svg { width: 92px; height: 92px; overflow: visible; filter: drop-shadow(0 3px 0 rgba(53, 65, 53, .14)); shape-rendering: crispEdges; }
+.landmark > span:not(.interactionHint) { position: absolute; top: -2.75rem; left: 50%; width: max-content; max-width: 154px; padding: 0.23rem 0.55rem; transform: translateX(-50%); border: 1px solid rgba(72, 95, 79, .22); border-radius: 999px; background: rgba(250, 251, 245, .9); font-size: 0.7rem; font-weight: 650; line-height: 1.25; text-align: center; }
+.interactionHint { position: absolute; top: -4.25rem; left: 50%; width: max-content; max-width: 170px; padding: .28rem .55rem; transform: translateX(-50%); border: 1px solid rgba(40, 103, 92, .35); border-radius: 999px; color: #214f46; background: #f7fcf7; box-shadow: 0 2px 10px rgba(34, 58, 46, .12); font-size: .66rem; font-weight: 700; line-height: 1.2; text-align: center; }
+.portal { top: 344px; }.crystal { top: 350px; }
+.character { position: absolute; z-index: 3; top: 0; left: 0; width: 56px; height: 140px; overflow: hidden; transform: translate3d(var(--player-x), var(--player-y), 0) scaleX(var(--player-facing, 1)); transform-origin: center bottom; will-change: transform; }
+.character img { position: absolute; top: -9px; left: -157px; width: 399px; max-width: none; height: auto; filter: url(#character-paper-cutout); image-rendering: pixelated; user-select: none; }
+.walking { animation: run-bob 220ms steps(2, end) infinite; }
+@keyframes run-bob { 0%, 100% { translate: 0 0; } 50% { translate: 0 -2px; } }
+.rising, .falling { animation: none; }
+.sceneCaption { position: absolute; right: 1.4rem; bottom: 1.1rem; z-index: 4; padding: 0.45rem 0.75rem; border: 1px solid rgba(74, 98, 81, .2); border-radius: 999px; color: #43564e; background: rgba(250, 251, 248, .82); font-size: 0.72rem; }
+.controlBar { position: fixed; inset: auto 0 0; z-index: 4; display: flex; min-height: 64px; align-items: center; justify-content: center; padding-bottom: env(safe-area-inset-bottom); border-top: 1px solid rgba(212, 221, 211, .8); background: rgba(237, 241, 235, .88); backdrop-filter: blur(10px); }
+.controlBar p { display: flex; align-items: center; gap: 0.38rem; margin: 0; color: #53645c; font-size: 0.72rem; }
+.controlBar kbd { display: inline-grid; min-width: 25px; height: 24px; place-items: center; padding: 0 0.3rem; border: 1px solid #c2cec6; border-bottom-width: 2px; border-radius: 0.32rem; color: #344940; background: #fff; font: inherit; font-size: 0.66rem; }
+.touchControls { display: none; align-items: center; gap: 0.5rem; }
+.touchControls button { width: 48px; height: 48px; border: 1px solid #b7c7be; border-radius: 50%; color: #244f45; background: white; font-size: 1.25rem; font-weight: 700; touch-action: none; user-select: none; -webkit-user-select: none; }
+
+.dialogBackdrop { position: fixed; inset: 0; z-index: 30; display: grid; place-items: center; padding: 1.5rem; background: rgba(35, 50, 44, .34); }
+.infoPanel { display: grid; grid-template-rows: auto minmax(0, 1fr) auto; width: min(760px, 86vw); max-height: min(690px, 86dvh); overflow: hidden; border: 1px solid #d9e1dc; border-radius: 1.15rem; outline-offset: 4px; background: #fff; box-shadow: 0 22px 70px rgba(31, 47, 40, .22); }
+.panelHeader { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 1.15rem 1.4rem; border-bottom: 1px solid #e5ebe7; }
+.panelHeader p { margin: 0 0 0.2rem; color: #527c6b; font-size: 0.68rem; font-weight: 750; letter-spacing: .06em; text-transform: uppercase; }
+.panelHeader h2 { margin: 0; color: #293832; font-size: clamp(1.18rem, 2vw, 1.55rem); line-height: 1.25; }
+.panelHeader button { flex: 0 0 auto; width: 42px; height: 42px; border: 1px solid #d7e1da; border-radius: 50%; color: #354840; background: #f7f9f6; cursor: pointer; font-size: 1.45rem; line-height: 1; }
+.panelBody { overflow: auto; padding: 1.1rem 1.4rem 1.3rem; color: #43524b; font-size: 0.91rem; line-height: 1.65; overscroll-behavior: contain; }
+.panelBody p { margin: 0.45rem 0 0.75rem; }.lead { color: #2d6459; font-size: 1.03rem; font-weight: 650; }.muted { color: #66766e; font-size: 0.82rem; }
+.focusList, .contactList { display: grid; gap: .42rem; padding-left: 1.15rem; }
+.recordList { display: grid; gap: 1rem; }.record { padding-bottom: 1rem; border-bottom: 1px solid #e7ece8; }.record:last-child { padding-bottom: 0; border-bottom: 0; }.record h3, .skillGroup h3 { margin: 0; color: #2d5045; font-size: .98rem; }.record ul { display: grid; gap: .35rem; padding-left: 1.1rem; }.recordMeta { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .5rem 1rem; align-items: baseline; }.recordMeta span { color: #6b7b73; font-size: .78rem; }.technologyLine { color: #557365; font-size: .82rem; }
+.skillGrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }.skillGroup { padding: .9rem; border: 1px solid #e0e8e2; border-radius: .7rem; background: #f8faf8; }.skillGroup ul { display: flex; flex-wrap: wrap; gap: .4rem; padding: 0; list-style: none; }.skillGroup li { padding: .25rem .5rem; border: 1px solid #dae5de; border-radius: .3rem; color: #465d52; background: white; font-size: .76rem; }
+.contactList a { color: #285e53; text-underline-offset: .2em; }.closeHint { margin: 0; padding: .65rem 1.4rem; border-top: 1px solid #e8ece9; color: #75837c; font-size: .72rem; }
+.visuallyHidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+@media (max-width: 760px) {
+  .controlBar { min-height: 78px; justify-content: space-around; padding: .55rem .75rem calc(.55rem + env(safe-area-inset-bottom)); }
+  .controlBar p { display: none; }.touchControls { display: flex; }
+  .sceneCaption { right: .6rem; bottom: .7rem; font-size: .65rem; }
+  .landmark { width: 132px; }.landmark > span:not(.interactionHint) { max-width: 132px; font-size: .64rem; }.interactionHint { max-width: 150px; font-size: .6rem; }
+  .dialogBackdrop { align-items: end; padding: 0; }
+  .infoPanel { width: 100%; max-height: min(88svh, 760px); border-radius: 1.1rem 1.1rem 0 0; }
+  .panelHeader { padding: .9rem 1rem; }.panelBody { padding: .8rem 1rem 1.1rem; font-size: .86rem; }.closeHint { padding: .55rem 1rem; }
+  .skillGrid { grid-template-columns: 1fr; gap: .65rem; }.skillGroup { padding: .7rem; }
+}
+
+@media (max-width: 380px) {
+  .landmark { width: 118px; }.landmark > span:not(.interactionHint) { max-width: 118px; font-size: .6rem; }.interactionHint { top: -4.4rem; max-width: 140px; font-size: .57rem; }
+  .panelHeader h2 { font-size: 1.08rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .world, .character, .landmark svg { transition: none; }
+  .walking, .walking img, .rising, .falling { animation: none; translate: 0 0; }
+}

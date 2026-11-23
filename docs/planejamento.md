@@ -1,6 +1,6 @@
 # Planejamento do portfólio
 
-**Status:** planejamento visual, funcional e técnico concluído; referências visuais e direção dos painéis aprovadas; quatro skills especializadas criadas; scaffold técnico inicial concluído e validado. A implementação das funcionalidades do portfólio ainda não foi iniciada. Este documento é a referência oficial do projeto.
+**Status:** planejamento visual e arquitetura técnica aprovados; cinco skills especializadas criadas; scaffold e modo institucional validados. A primeira versão do modo jogo existe como protótipo, mas a reconstrução mecânica aprovada conceitualmente ainda não foi iniciada. Este documento é a referência oficial do projeto.
 
 ## 1. Conceito e objetivos
 
@@ -28,9 +28,11 @@ Os esboços aprovados foram preservados como referências de concepção. Devem 
 ### Modo jogo
 
 - É a experiência padrão de entrada.
-- Apresenta um único cenário horizontal, sem divisão em fases.
-- O visitante pode caminhar, realizar pequenos saltos e interagir com pontos de interesse.
-- A movimentação e a interação são simples; não haverá mecânicas complexas de jogo.
+- Apresenta um único mundo horizontal contínuo, sem divisão em fases.
+- Funciona como uma experiência real de plataforma 2D: movimento contínuo com aceleração e desaceleração, gravidade, velocidade vertical, pulo, queda, aterrissagem e colisões.
+- A câmera acompanha o personagem e desloca o mundo suavemente, respeitando os limites do cenário.
+- Cada um dos seis pontos possui uma interação contextual própria, coerente com sua representação aprovada.
+- As mecânicas permanecem simples e servem à apresentação do portfólio; não haverá sistema de jogo completo, inimigos ou colecionáveis.
 - O menu ou mapa de seções permite acesso direto a qualquer ponto, sem obrigar o visitante a percorrer o cenário.
 
 ### Modo institucional
@@ -61,6 +63,27 @@ Os pontos podem ter o espaçamento ajustado durante a implementação, desde que
 O personagem aprovado é um avatar simbólico original que representa o desenvolvedor. A referência oficial preserva cabelo loiro curto, jogado para o lado e mais baixo nas laterais; olhos azuis; pele clara; corpo magro; jaqueta verde-azulada; camiseta clara; calça escura; tênis; estilo pixel art e as proporções apresentadas. Não inclui bolsa.
 
 Não propor nem fazer alterações visuais no personagem. Animações necessárias são repouso, caminhada, pequenos saltos e interação, preservando a aparência aprovada e sua leitura em escala reduzida.
+
+### Dimensões de referência e recomendação de escala
+
+Os arquivos aprovados são estudos de concepção, não assets finais com escala de produção:
+
+- `cenario-aprovado.png`: 2172 × 724 px, RGB sem canal alfa e proporção 3:1. No estudo, o caminho encontra o chão aproximadamente em y=575 px (cerca de 79% da altura); os seis objetos têm alturas visuais aproximadas de 90–120 px.
+- `personagem-aprovado.png`: 1536 × 1024 px, RGB sem canal alfa e proporção 3:2. É uma prancha composta, com retrato, vistas do personagem e poses de caminhada e salto; não define células alinhadas, recortes transparentes nem escala relativa ao cenário.
+- Como o personagem não aparece no estudo do cenário, a relação entre sua altura de produção e os objetos ainda precisa de validação visual. Recomenda-se começar com o personagem em torno de 1,4 vez a altura mediana dos objetos do estudo, com os pés alinhados à superfície do caminho e a proporção original preservada. Esse valor é referência para prototipagem, não dimensão final do sprite.
+- A caixa de colisão deve ser dimensionada em coordenadas do mundo a partir da silhueta visível, separada da moldura completa da imagem; os pés físicos alinham-se ao chão sem redimensionar ou distorcer o sprite.
+
+**Recomendação de mundo lógico:** manter 4800 unidades de largura como base provisória do protótipo — ela preserva a distribuição atual dos seis marcos entre x=210 e x=4450, com margens nas extremidades — e adotar aproximadamente 1600 unidades de altura, calculadas pela proporção do cenário aprovado (4800 ÷ 3). Isso gera um mundo próximo de 3:1, alinhado ao panorama de referência, em vez de escolher isoladamente 4800 × 650 ou 4800 × 720. O chão ficaria aproximadamente em y=1270 (79% da altura), seguindo a composição do estudo. A largura não é deduzida da arte e deverá ser validada com o espaçamento final dos marcos. Esta é uma recomendação fundamentada, ainda sujeita à validação em viewport e com os sprites finais; não congela as dimensões de produção.
+
+O tamanho do viewport será medido na área efetiva de jogo, não inferido apenas da largura global da janela. A escala visual deve ser uniforme e responsiva: o mundo não será comprimido para caber inteiro em telas pequenas. Usando ajuste pela altura útil do viewport, as referências aproximadas são:
+
+| Dispositivo e área de jogo de referência | Escala uniforme | Largura lógica visível |
+| --- | ---: | ---: |
+| Desktop, 1440 × 700 px | 0,438 | 3290 unidades |
+| Tablet, 768 × 650 px | 0,406 | 1890 unidades |
+| Mobile, 390 × 520 px | 0,325 | 1200 unidades |
+
+Assim, desktop exibe parte do mundo e mobile acompanha um trecho menor, mantendo a exploração contínua e o acesso direto pelo menu. A câmera deve usar as dimensões reais do viewport para seguir o personagem, centralizá-lo relativamente e limitar o enquadramento nos extremos do mundo.
 
 ## 4. Conteúdo e organização
 
@@ -118,7 +141,7 @@ O currículo contém telefone, e-mail, GitHub e LinkedIn; a divulgação desses 
 | --- | --- | --- |
 | Apresentação | Portal inicial discreto. | Nome, título profissional e resumo fiel ao currículo. |
 | Trajetória profissional | Placa de sinalização. | Empresa, cargo, período, local e descrição das responsabilidades. |
-| Competências técnicas | Computador. | Competências organizadas por categoria em texto e etiquetas legíveis. |
+| Competências técnicas | Computador com um bloco suspenso integrado à interação do ponto. | Competências organizadas por categoria em texto e etiquetas legíveis; o impacto do pulo no bloco abre este painel. |
 | Trabalhos e contribuições | Bancada tecnológica simples. | Cartões por empresa com período, contribuições e tecnologias utilizadas. |
 | Formação acadêmica | Estante de livros. | Instituição, curso, período e situação de conclusão/em andamento. |
 | Contato | Cristal luminoso discreto. | E-mail, telefone e links profissionais aprovados. |
@@ -161,6 +184,19 @@ Os painéis seguem a direção visual aprovada nas referências abaixo. As image
 
 Fechar o painel retorna ao cenário e à posição/seção de origem. O fechamento deve estar disponível por controle visível e teclado; comportamento por tecla Escape pode ser adotado se não conflitar com acessibilidade ou conteúdo.
 
+### Simulação e mecânicas do modo jogo
+
+- A simulação mantém estado tipado do mundo e do personagem em coordenadas próprias: posição horizontal e vertical, velocidades, direção e contato com superfícies.
+- Movimento, aceleração, desaceleração, gravidade, pulo e colisões são atualizados por uma simulação TypeScript independente da renderização React. React continua responsável pelos estados de interface, como idioma, modo e painel ativo.
+- A simulação considera o tempo decorrido entre atualizações, limita deltas anormais após suspensão da aba e resolve colisões com o chão, limites do mundo e objetos explicitamente interativos. Elementos decorativos não são colisores por padrão.
+- A câmera acompanha o personagem suavemente perto do centro do viewport e respeita os limites horizontais do mundo. O cenário se move em relação ao personagem durante a exploração; não se resume a deslocar o personagem sobre uma tela estática.
+- Os estados do personagem distinguem repouso, caminhada, subida, queda, aterrissagem e interação. Poses e recortes devem ser verificados para que nenhuma transição mostre sprite parcial ou incompatível com a ação.
+- **Competências técnicas:** o computador permanece como o ponto aprovado. Um bloco suspenso integrado a esse ponto recebe uma colisão por baixo; quando o personagem salta e atinge a face inferior, o bloco reage e abre o painel de competências. Ele pertence à interação existente e não cria uma sétima seção.
+- Os outros cinco pontos usam interações de contexto com o objeto já aprovado e uma resposta visual própria, a ser detalhada sem acrescentar pontos, obstáculos ou colecionáveis.
+- O menu mantém acesso direto a qualquer painel sem exigir movimento, pulo ou colisão. Abrir um painel pausa a simulação; fechá-lo devolve o visitante ao mesmo contexto do mundo.
+- Entrada mantida deve continuar até soltura, cancelamento ou perda de foco. Teclado e toque têm suporte; toque não depende de temporização precisa.
+- Respeitar `prefers-reduced-motion` sem retirar o acesso aos conteúdos ou às ações.
+
 ## 7. Interface superior
 
 A barra superior conterá:
@@ -177,7 +213,8 @@ Os controles devem permanecer fáceis de localizar sem competir com o conteúdo.
 O projeto deve considerar desktop, tablet e mobile desde o desenho da experiência.
 
 - Desktop: controles por teclado e seleção direta por mouse.
-- Mobile: controles de toque dimensionados para uso confortável e navegação direta por seções.
+- Mobile: controles de toque dimensionados para uso confortável, movimento contínuo enquanto pressionados e navegação direta por seções.
+- A posição do personagem, os pontos de interesse e a câmera usam as mesmas coordenadas lógicas em todos os dispositivos; o viewport enquadra a parte relevante do mundo sem distorcer as proporções.
 - O layout mobile não será apenas uma redução do panorama desktop. A experiência pode enquadrar trechos do mesmo mundo contínuo, reorganizar a apresentação dos marcos e usar painéis adaptados à tela.
 - Painéis devem manter hierarquia, leitura e controles de fechamento em telas estreitas.
 - **Desktop:** painel flutuante de largura confortável, deixando o personagem e o ponto de interesse visíveis sempre que possível; teclado e mouse disponíveis.
@@ -197,7 +234,9 @@ Não utilizar sprites, mapas, personagens, músicas, logos, fontes, efeitos sono
 
 - Valores exatos de cor, tipografia e acabamento final da interface.
 - Produção dos assets finais a partir das referências aprovadas.
-- Detalhes de implementação dos controles e da navegação dentro da arquitetura aprovada.
+- Afinação dos valores de aceleração, velocidade máxima, desaceleração, gravidade e impulso do pulo, a validar em protótipo.
+- A recomendação de mundo lógico 4800 × 1600 deve ser validada com os assets finais e os viewports reais antes de se tornar dimensão de produção.
+- Respostas visuais específicas dos outros cinco pontos, preservando seus objetos aprovados.
 
 Esses detalhes permanecem abertos e devem respeitar as decisões já aprovadas. Mudanças de direção visual, produto ou tecnologia devem ser apresentadas para aprovação antes de implementação significativa.
 
@@ -205,11 +244,12 @@ Esses detalhes permanecem abertos e devem respeitar as decisões já aprovadas. 
 
 | Tecnologia ou decisão | Responsabilidade no projeto |
 | --- | --- |
-| **React** | Construir a interface por componentes, controlar os modos de navegação, o idioma, os painéis e os estados da experiência. |
+| **React** | Construir a interface por componentes e controlar os modos de navegação, o idioma, os painéis e os estados de interface; não executar a simulação física a cada frame. |
 | **Vite** | Servir o ambiente de desenvolvimento e gerar a aplicação otimizada como arquivos estáticos. |
-| **TypeScript** | Tipar componentes, estados e conteúdo para reduzir inconsistências entre seções e idiomas. |
+| **TypeScript** | Tipar componentes, conteúdo compartilhado, estado do mundo e funções puras da simulação e de colisão. |
 | **DOM, CSS e imagens** | Compor e enquadrar o cenário 2D; representar personagem e pontos de interesse em camadas acessíveis. |
-| **Animações CSS e spritesheets originais** | Apresentar repouso, caminhada, saltos e interações simples do personagem, sem simulação física ou engine. |
+| **Animações CSS e spritesheets originais** | Apresentar poses e feedback visual; trajetória, velocidade e colisões vêm da simulação, não de temporizadores de animação. |
+| **Simulação local em TypeScript** | Atualizar movimento, física básica, colisões, aterrissagem e estado do personagem, independente da renderização React. |
 | **HTML semântico** | Representar pontos de interesse, navegação, conteúdo dos painéis e alternativa institucional. |
 | **Dicionários locais PT/EN** | Fornecer textos de interface e conteúdo nos dois idiomas usando os mesmos componentes e estrutura de dados. |
 | **CSS modular e variáveis de design** | Organizar estilos por componente e centralizar tokens visuais para cores, tipografia, espaçamento e acabamento. |
@@ -220,23 +260,25 @@ Esses detalhes permanecem abertos e devem respeitar as decisões já aprovadas. 
 ### Limites da arquitetura
 
 - Não haverá backend, API própria ou banco de dados na etapa inicial.
-- Não será utilizada engine de jogos. A movimentação permanece simples e baseada em estados e animações CSS.
+- Não serão utilizados Canvas, engine de jogos ou pacote de física. A física básica será própria, tipada e limitada às mecânicas aprovadas.
+- A simulação será independente da renderização React; os elementos visuais continuarão em DOM, CSS e imagens, com conteúdo e controles semânticos no DOM.
 - O estado da aplicação será gerenciado pelos recursos locais do React; não está previsto um gerenciador externo de estado.
 - O conteúdo profissional será mantido como dados locais versionados, com versões em português e inglês.
 - Cenário e personagem são camadas visuais. Textos, ações, hotspots e painéis permanecem no DOM para suportar semântica, teclado e tecnologias assistivas.
-- Vitest e Playwright estão instalados e configurados no scaffold inicial. Os testes iniciais foram executados com sucesso; a verificação de TypeScript e o build de produção também passaram. A cobertura atual é apenas de confirmação do scaffold, não das funcionalidades ainda não implementadas.
+- Vitest e Playwright estão instalados e configurados. Os testes cobrem o scaffold e os fluxos implementados dos modos institucional e jogo; a verificação de TypeScript e o build de produção também passam. A cobertura não representa ainda todos os requisitos do portfólio final.
 
 ## 12. Estado e próxima etapa
 
-O planejamento visual, funcional e técnico está concluído. As referências aprovadas do personagem e do cenário estão preservadas em `docs/referencias/`; a direção visual dos painéis também está aprovada e documentada. A arquitetura técnica está definida nesta seção. O agente principal é `.codex/agents/portfolio-architect.toml`.
+O planejamento visual, funcional e técnico está concluído. As referências aprovadas do personagem e do cenário estão preservadas em `docs/referencias/`; a direção visual dos painéis também está aprovada e documentada. A direção mecânica do modo jogo foi aprovada conceitualmente e está documentada; a dimensão 4800 × 1600 é recomendação ainda não congelada. A arquitetura técnica está definida nesta seção. O agente principal é `.codex/agents/portfolio-architect.toml`.
 
-As quatro skills especializadas já foram criadas em `.agents/skills/`:
+As cinco skills especializadas já foram criadas em `.agents/skills/`:
 
+- [2d-platformer-design](../.agents/skills/2d-platformer-design/SKILL.md)
 - [frontend-architecture](../.agents/skills/frontend-architecture/SKILL.md)
 - [pixel-art-environment](../.agents/skills/pixel-art-environment/SKILL.md)
 - [responsive-accessibility](../.agents/skills/responsive-accessibility/SKILL.md)
 - [testing-quality](../.agents/skills/testing-quality/SKILL.md)
 
-O scaffold inicial foi criado com React, Vite e TypeScript configurados, além de Vitest e Playwright instalados e configurados. Os testes iniciais passaram, a verificação de TypeScript passou e o build de produção foi executado com sucesso. A estrutura técnica inicial está concluída e validada.
+O scaffold inicial foi criado com React, Vite e TypeScript configurados, além de Vitest e Playwright instalados e configurados. O modo institucional continua implementado e os dois modos usam a mesma fonte de conteúdo profissional. No modo jogo, a simulação básica de movimento e física, incluindo gravidade, pulo, aterrissagem, colisão com o chão e limites do mundo, e o acompanhamento da câmera já estão implementados. O sistema contextual de interações com os seis pontos, incluindo a colisão especial do bloco de competências e o acesso direto pelo menu Seções, ainda está pendente.
 
-Essa conclusão cobre somente a estrutura técnica inicial. A implementação das funcionalidades do portfólio — incluindo os modos jogo e institucional, cenário, movimentação, painéis e conteúdo — ainda não começou. A produção de assets finais e o deploy também permanecem pendentes.
+TypeScript, testes unitários, testes Playwright e build de produção passaram para o estado atual do protótipo. A próxima etapa autorizada é implementar o sistema de interações descrito neste planejamento; ela ainda não foi iniciada. O conceito visual aprovado do cenário e do personagem continua sendo referência; assets finais de produção e deploy permanecem pendentes.

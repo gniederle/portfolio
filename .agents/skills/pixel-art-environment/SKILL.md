@@ -13,7 +13,7 @@ Use this skill when creating, integrating, organizing, or reviewing scene, sprit
 - Do not redesign, modify, or replace the approved character or scene concepts without explicit user approval. Preserve the character's approved appearance and the landscape's clean, continuous horizontal composition.
 - Keep the six approved landmarks and their meanings: entry portal/presentation, sign/trajectory, computer/skills, workbench/contributions, bookshelf/education, and crystal/contact. Small spacing adjustments are allowed when needed for responsive composition; avoid unapproved decorative structures.
 - Use the approved DOM/CSS/images approach. Keep text, controls, hotspots, and information panels in semantic HTML; use images for scenery and original artwork.
-- Build only the simple idle, walk, jump, and interaction states required by the plan. Use original spritesheets and CSS animation; do not introduce physics, complex mechanics, or an engine.
+- Build only the character states and interactions required by the plan, using original spritesheets and CSS animation. The approved basic physical simulation—including gravity, vertical velocity, collisions, and landing—is part of this project; keep it within the approved React, TypeScript, DOM, CSS, and image architecture, without a game engine or physics package.
 
 ## Asset handling and provenance
 

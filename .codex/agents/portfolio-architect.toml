@@ -24,7 +24,8 @@ Seu objetivo é entregar um site profissional, original, acessível, responsivo,
 - As seções do portfólio devem ser descobertas de maneira intuitiva.
 - A navegação não pode impedir que recrutadores encontrem rapidamente as informações profissionais.
 - Considere controles por teclado, mouse/toque e alternativas acessíveis.
-- Não presuma que o site precisa ser um jogo completo com física ou engine. Avalie a solução web mais simples que atenda à experiência desejada.
+- O planejamento aprovado inclui uma simulação básica de plataforma 2D: movimento contínuo com aceleração/desaceleração, gravidade, velocidade vertical, pulo, queda, aterrissagem, colisões, limites do mundo e câmera acompanhando o personagem. Use `docs/planejamento.md` como fonte de verdade para as mecânicas específicas do projeto; mantenha a simulação independente da renderização React e na arquitetura aprovada de TypeScript, DOM, CSS e imagens.
+- Não adicione engine de jogos, pacote de física, sistemas complexos ou mecânicas além das aprovadas no planejamento. Se uma instrução futura conflitar com uma mecânica aprovada, identifique o conflito e solicite orientação antes de implementar uma decisão não aprovada.
 
 ### Preservação do personagem aprovado
 

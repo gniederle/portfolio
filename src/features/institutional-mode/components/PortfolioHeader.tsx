@@ -1,17 +1,18 @@
 import type { InstitutionalMessages } from '../../../i18n/messages';
 import { institutionalSectionOrder } from '../../../navigation/sections';
-import type { Language } from '../../../types/portfolio';
+import type { Language, PortfolioMode } from '../../../types/portfolio';
 import styles from './PortfolioHeader.module.css';
 
 interface PortfolioHeaderProps {
   language: Language;
   messages: InstitutionalMessages;
   onLanguageChange: (language: Language) => void;
+  onModeChange: (mode: PortfolioMode) => void;
 }
 
-export function PortfolioHeader({ language, messages, onLanguageChange }: PortfolioHeaderProps) {
+export function PortfolioHeader({ language, messages, onLanguageChange, onModeChange }: PortfolioHeaderProps) {
   return (
-    <header className={styles.header}>
+    <header className={styles.header} data-testid="institutional-header">
       <nav className={styles.navigation} aria-label={messages.navigationLabel}>
         <ul className={styles.navigationList}>
           {institutionalSectionOrder.map((section) => (
@@ -20,6 +21,9 @@ export function PortfolioHeader({ language, messages, onLanguageChange }: Portfo
             </li>
           ))}
         </ul>
+        <button className={styles.gameModeButton} type="button" onClick={() => onModeChange('game')}>
+          {messages.gameMode}
+        </button>
         <fieldset className={styles.languagePicker}>
           <legend className={styles.visuallyHidden}>{messages.languageLabel}</legend>
           {(['pt', 'en'] as const).map((option) => (
