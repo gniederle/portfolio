@@ -14,9 +14,25 @@ test('institutional page supports navigation, language, keyboard, and responsive
   await expect(page).toHaveTitle(/Guilherme Niederle/);
   await expect(page.getByRole('heading', { level: 1, name: 'Guilherme Niederle' })).toBeVisible();
 
-  const navigation = page.getByRole('navigation', { name: 'Navegação principal' });
   const institutionalHeader = page.getByTestId('institutional-header');
+  const menuToggle = page.getByTestId('institutional-menu-toggle');
+  const navigation = page.getByRole('navigation', { name: 'Navegação principal' });
   await expect(institutionalHeader).toHaveCSS('position', 'sticky');
+  await page.keyboard.press('Tab');
+  const skipLink = page.getByRole('link', { name: 'Pular para o conteúdo principal' });
+  await expect(skipLink).toBeFocused();
+  await page.keyboard.press('Enter');
+  await expect(page.locator('#main-content')).toBeFocused();
+
+  await expect(menuToggle).toBeVisible();
+  await expect(menuToggle).toHaveAttribute('aria-expanded', 'false');
+  await expect(navigation).toBeHidden();
+
+  const mainTopWhenClosed = await page.locator('#main-content').evaluate((element) => element.getBoundingClientRect().top + window.scrollY);
+  await menuToggle.click();
+  await expect(page.getByRole('button', { name: 'Fechar navegação' })).toHaveAttribute('aria-expanded', 'true');
+  await expect(navigation).toBeVisible();
+  expect(await page.locator('#main-content').evaluate((element) => element.getBoundingClientRect().top + window.scrollY)).toBe(mainTopWhenClosed);
   for (const label of [
     'Apresentação',
     'Trajetória profissional',
@@ -33,11 +49,17 @@ test('institutional page supports navigation, language, keyboard, and responsive
 
   await page.screenshot({ path: testInfo.outputPath('institutional-desktop.png'), fullPage: true });
 
-  await page.keyboard.press('Tab');
-  const skipLink = page.getByRole('link', { name: 'Pular para o conteúdo principal' });
-  await expect(skipLink).toBeFocused();
+  await menuToggle.click();
+  await menuToggle.focus();
   await page.keyboard.press('Enter');
-  await expect(page.locator('#main-content')).toBeFocused();
+  await expect(navigation).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(navigation).toBeHidden();
+  await expect(menuToggle).toBeFocused();
+
+  await menuToggle.click();
+  await page.mouse.click(20, 200);
+  await expect(navigation).toBeHidden();
 
   for (const [label, id] of [
     ['Apresentação', 'presentation'],
@@ -46,17 +68,23 @@ test('institutional page supports navigation, language, keyboard, and responsive
     ['Formação acadêmica', 'education'],
     ['Contato', 'contact'],
   ]) {
+    await menuToggle.click();
+    await expect(navigation).toBeVisible();
     await navigation.getByRole('link', { name: label }).click();
     await expect(page).toHaveURL(new RegExp(`#${id}$`));
+    await expect(navigation).toBeHidden();
   }
   await expect.poll(() => institutionalHeader.evaluate((element) => element.getBoundingClientRect().top)).toBe(0);
 
+  await menuToggle.click();
   await page.getByRole('button', { name: 'Inglês' }).click();
   await expect(page.locator('html')).toHaveAttribute('lang', 'en');
   await expect(page).toHaveTitle(/Software engineer/);
   await expect(page.getByRole('heading', { level: 1, name: 'Guilherme Niederle' })).toBeVisible();
   await expect(page.getByText('choose one of the available channels.')).toBeVisible();
-  await expect(page.getByRole('navigation', { name: 'Main navigation' }).getByRole('link', { name: 'Career' })).toBeVisible();
+  const englishNavigation = page.getByRole('navigation', { name: 'Main navigation' });
+  await expect(englishNavigation).toBeVisible();
+  await expect(englishNavigation.getByRole('link', { name: 'Career' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Get in touch' })).toBeVisible();
 
   const whatsapp = page.getByRole('link', { name: /Phone \+55 49 99810-5000/ });
@@ -69,6 +97,7 @@ test('institutional page supports navigation, language, keyboard, and responsive
 
   await page.getByRole('button', { name: 'Portuguese' }).click();
   await expect(page.locator('html')).toHaveAttribute('lang', 'pt-BR');
+  await menuToggle.click();
 
   for (const viewport of [
     { width: 2560, height: 1440 },
@@ -81,7 +110,8 @@ test('institutional page supports navigation, language, keyboard, and responsive
   ]) {
     await page.setViewportSize(viewport);
     await expect(page.getByRole('heading', { level: 1, name: 'Guilherme Niederle' })).toBeVisible();
-    await expect(page.getByRole('navigation', { name: 'Navegação principal' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Abrir navegação' })).toBeVisible();
+    await expect(page.getByRole('navigation', { name: 'Navegação principal' })).toBeHidden();
     const hasHorizontalOverflow = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth);
     expect(hasHorizontalOverflow, `unexpected horizontal overflow at ${viewport.width}px`).toBe(false);
     await expect(institutionalHeader).toHaveCSS('position', 'sticky');
@@ -91,6 +121,10 @@ test('institutional page supports navigation, language, keyboard, and responsive
       await page.screenshot({ path: testInfo.outputPath('institutional-mobile.png') });
     }
   }
+
+  await page.getByRole('button', { name: 'Abrir navegação' }).click();
+  await page.getByRole('button', { name: 'Modo jogo' }).click();
+  await expect(page.getByTestId('game-header')).toBeVisible();
 
   await page.emulateMedia({ reducedMotion: 'reduce' });
   expect(await page.evaluate(() => getComputedStyle(document.documentElement).scrollBehavior)).toBe('auto');

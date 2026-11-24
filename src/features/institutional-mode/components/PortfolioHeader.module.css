@@ -7,47 +7,124 @@
   background: var(--color-canvas);
 }
 
-.navigation {
+.topBar {
   display: flex;
   width: min(100% - 3rem, 76rem);
+  min-height: 4rem;
   align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
+  justify-content: flex-end;
   margin-inline: auto;
 }
 
+.menuToggle {
+  display: grid;
+  width: 2.9rem;
+  height: 2.9rem;
+  place-items: center;
+  border: 1px solid var(--color-border);
+  border-radius: 50%;
+  color: var(--color-accent-dark);
+  background: var(--color-surface);
+  cursor: pointer;
+}
+
+.menuToggle:hover {
+  border-color: var(--color-border-strong);
+  background: var(--color-accent-soft);
+}
+
+.menuIcon {
+  display: grid;
+  width: 1.2rem;
+  gap: 4px;
+}
+
+.menuIcon span {
+  display: block;
+  width: 100%;
+  height: 2px;
+  border-radius: 2px;
+  background: currentColor;
+  transition: transform 180ms ease, opacity 140ms ease;
+}
+
+.menuIconOpen span:first-child { transform: translateY(6px) rotate(45deg); }
+.menuIconOpen span:nth-child(2) { opacity: 0; }
+.menuIconOpen span:last-child { transform: translateY(-6px) rotate(-45deg); }
+
+.menuPanel {
+  position: absolute;
+  top: calc(100% + .55rem);
+  right: max(1.5rem, calc((100vw - 76rem) / 2));
+  display: grid;
+  width: min(32rem, calc(100vw - 3rem));
+  max-height: calc(100dvh - 5rem - env(safe-area-inset-top));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  gap: .75rem;
+  padding: 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-medium);
+  background: var(--color-canvas);
+  box-shadow: 0 16px 40px rgb(30 52 43 / 16%);
+  opacity: 0;
+  transform: translateY(-.4rem);
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 180ms ease, transform 180ms ease, visibility 180ms;
+}
+
+.menuPanelOpen {
+  opacity: 1;
+  transform: translateY(0);
+  visibility: visible;
+  pointer-events: auto;
+}
+
 .navigationList {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.15rem 1.65rem;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: .15rem .5rem;
   margin: 0;
-  padding: 0.55rem 0;
+  padding: 0;
   list-style: none;
 }
 
-.navigation a {
-  display: inline-flex;
+.navigationList a {
+  display: flex;
   min-height: 2.75rem;
   align-items: center;
+  padding: .4rem .65rem;
+  border-radius: var(--radius-small);
   color: var(--color-muted);
-  font-size: 0.84rem;
+  font-size: .84rem;
   font-weight: 550;
+  line-height: 1.25;
   text-decoration: none;
-  text-underline-offset: 0.25em;
+  text-underline-offset: .25em;
 }
 
-.navigation a:hover {
+.navigationList a:hover {
   color: var(--color-accent-dark);
+  background: var(--color-accent-soft);
   text-decoration: underline;
+}
+
+.menuActions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-top: .7rem;
+  border-top: 1px solid var(--color-border);
 }
 
 .languagePicker {
   display: flex;
   flex: 0 0 auto;
-  gap: 0.15rem;
+  gap: .15rem;
   margin: 0;
-  padding: 0.2rem;
+  padding: .2rem;
   border: 1px solid var(--color-border);
   border-radius: 999px;
 }
@@ -55,13 +132,13 @@
 .gameModeButton {
   flex: 0 0 auto;
   min-height: 2.75rem;
-  padding: 0.4rem 0.75rem;
+  padding: .4rem .75rem;
   border: 1px solid var(--color-border);
   border-radius: 999px;
   color: var(--color-accent-dark);
   background: var(--color-surface);
   cursor: pointer;
-  font-size: 0.75rem;
+  font-size: .75rem;
   font-weight: 650;
 }
 
@@ -83,34 +160,31 @@
 .languageButton {
   min-width: 2.75rem;
   min-height: 2.75rem;
-  padding: 0.4rem 0.55rem;
+  padding: .4rem .55rem;
   border: 0;
   border-radius: 999px;
-  background: transparent;
   color: var(--color-muted);
+  background: transparent;
   cursor: pointer;
-  font-size: 0.75rem;
+  font-size: .75rem;
   font-weight: 700;
 }
 
 .languageButton[aria-pressed='true'] {
-  background: var(--color-accent-dark);
   color: #fff;
+  background: var(--color-accent-dark);
 }
 
 @media (max-width: 54rem) {
-  .navigation { width: min(100% - 2rem, 76rem); }
+  .topBar { width: min(100% - 2rem, 76rem); }
+  .menuPanel { right: 1rem; width: min(32rem, calc(100vw - 2rem)); }
 }
 
-@media (max-width: 42rem) {
-  .navigation { flex-wrap: wrap; }
-  .navigationList {
-    display: grid;
-    flex: 1 1 100%;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 0.1rem 0.6rem;
-    padding-block: 0.45rem 0.25rem;
-  }
-  .navigation a { min-height: 2.75rem; font-size: 0.76rem; line-height: 1.25; }
-  .languagePicker { margin: 0 0 0.45rem auto; }
+@media (max-width: 26rem) {
+  .menuPanel { padding: .75rem; }
+  .navigationList { grid-template-columns: 1fr; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .menuIcon span, .menuPanel { transition: none; }
 }

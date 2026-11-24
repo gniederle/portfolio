@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { KeyboardEvent as ReactKeyboardEvent, PointerEvent as ReactPointerEvent } from 'react';
-import characterReference from '../../../docs/referencias/personagem-aprovado.png';
 import { GameHeader } from './GameHeader';
 import type { GameMessages } from './gameMessages';
 import type { Language, PortfolioContent, PortfolioMode, PortfolioSectionId } from '../../types/portfolio';
 import { WORLD, createPlayer, stepCamera, stepPlayer } from './platformerSimulation';
 import { findHitLandmark, findNearbyLandmark, LANDMARKS, type LandmarkType } from './landmarkRegistry';
+import { getViewportPresentation } from './viewportPresentation';
 import styles from './GameMode.module.css';
 
 interface GameModeProps {
@@ -32,16 +32,25 @@ export function GameMode({ content, language, messages, sectionLabels, languageN
   const triggerRef = useRef<HTMLElement | null>(null);
   const nearbyLandmarkRef = useRef<PortfolioSectionId | null>(null);
   const playerStateRef = useRef(createPlayer());
+  const animationStateRef = useRef<'idle' | 'walking' | 'rising' | 'falling' | 'landing'>('idle');
   const cameraStateRef = useRef({ x: 0 });
   const inputRef = useRef({ direction: 0 as -1 | 0 | 1, jumpPressed: false });
-  const viewportSizeRef = useRef({ width: 0, scale: 1 });
+  const viewportSizeRef = useRef({ width: 0, height: 0, scale: 1, offsetX: 0, offsetY: 0, worldWidth: WORLD.width });
 
   useEffect(() => {
     const viewport = sceneRef.current;
     if (!viewport) return;
     const measure = () => {
       const rect = viewport.getBoundingClientRect();
-      viewportSizeRef.current = { width: rect.width, scale: rect.height > 0 ? rect.height / WORLD.height : 1 };
+      const presentation = getViewportPresentation(rect.width, rect.height, WORLD);
+      viewportSizeRef.current = { width: rect.width, height: rect.height, ...presentation };
+      viewport.style.setProperty('--floor-screen-y', `${rect.height * (WORLD.floorY / WORLD.height)}px`);
+      viewport.style.setProperty('--scene-sky', presentation.skyBackground);
+      viewport.style.setProperty('--ground-grass-height', `${presentation.groundGrassHeight}px`);
+      viewport.style.setProperty('--ground-detail-top', `${presentation.groundDetailTop}px`);
+      viewport.style.setProperty('--ground-detail-bottom', `${presentation.groundDetailBottom}px`);
+      viewport.style.setProperty('--ground-path-top', `${presentation.groundPathTop}px`);
+      viewport.style.setProperty('--ground-path-bottom', `${presentation.groundPathBottom}px`);
     };
     const observer = new ResizeObserver(measure);
     observer.observe(viewport);
@@ -58,6 +67,7 @@ export function GameMode({ content, language, messages, sectionLabels, languageN
     let frame = 0;
     let previousTime = performance.now();
     let previousCaption = '';
+    let landingTimeRemaining = 0;
     const tick = (time: number) => {
       const elapsed = (time - previousTime) / 1000;
       previousTime = time;
@@ -68,8 +78,7 @@ export function GameMode({ content, language, messages, sectionLabels, languageN
         const activatedLandmark = findHitLandmark(previousPlayer, player);
         input.jumpPressed = false;
         playerStateRef.current = player;
-        const scale = viewportSizeRef.current.scale;
-        const viewportWorldWidth = scale > 0 ? viewportSizeRef.current.width / scale : WORLD.width;
+        const { scale, offsetX, offsetY, worldWidth: viewportWorldWidth } = viewportSizeRef.current;
         cameraStateRef.current = stepCamera(
           cameraStateRef.current,
           player,
@@ -85,15 +94,24 @@ export function GameMode({ content, language, messages, sectionLabels, languageN
           playerElement.style.setProperty('--player-y', `${player.y}px`);
           playerElement.style.setProperty('--player-facing', `${player.facing}`);
           playerElement.dataset.x = `${player.x}`;
-          playerElement.classList.toggle(styles.walking, player.grounded && Math.abs(player.vx) > 8);
-          playerElement.classList.toggle(styles.rising, !player.grounded && player.vy < 0);
-          playerElement.classList.toggle(styles.falling, !player.grounded && player.vy >= 0);
-          playerElement.dataset.state = player.grounded
-            ? Math.abs(player.vx) > 8 ? 'walking' : 'idle'
-            : player.vy < 0 ? 'rising' : 'falling';
+          if (!previousPlayer.grounded && player.grounded) landingTimeRemaining = 0.28;
+          else landingTimeRemaining = Math.max(0, landingTimeRemaining - Math.max(0, elapsed));
+          const animationState = landingTimeRemaining > 0
+            ? 'landing'
+            : player.grounded
+              ? Math.abs(player.vx) > 8 ? 'walking' : 'idle'
+              : player.vy < 0 ? 'rising' : 'falling';
+          if (animationState !== animationStateRef.current) {
+            playerElement.classList.remove(styles[`character${capitalize(animationStateRef.current)}`]);
+            playerElement.classList.add(styles[`character${capitalize(animationState)}`]);
+            animationStateRef.current = animationState;
+            playerElement.dataset.state = animationState;
+          }
         }
         if (worldRef.current) {
-          worldRef.current.style.transform = `translate3d(${-cameraStateRef.current.x * scale}px, 0, 0) scale(${scale})`;
+          worldRef.current.style.transform = `translate3d(${offsetX - cameraStateRef.current.x * scale}px, ${offsetY}px, 0) scale(${scale})`;
+          worldRef.current.dataset.renderScale = `${scale}`;
+          worldRef.current.dataset.cameraX = `${cameraStateRef.current.x}`;
         }
         const centerX = player.x + player.width / 2;
         const nearest = LANDMARKS.reduce((best, item) =>
@@ -292,8 +310,7 @@ export function GameMode({ content, language, messages, sectionLabels, languageN
         onModeChange={onModeChange}
       />
       <section id="game-world" className={styles.sceneViewport} aria-label={messages.sceneLabel} tabIndex={0} ref={sceneRef}>
-        <div ref={worldRef} className={styles.world} data-platformer-world style={{ width: WORLD.width, height: WORLD.height, transformOrigin: 'top left' }}>
-          <svg className={styles.visuallyHidden} aria-hidden="true" focusable="false"><defs><filter id="character-paper-cutout" colorInterpolationFilters="sRGB"><feColorMatrix values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  -2.7 -2.7 -2.7 0 7.4"/></filter></defs></svg>
+        <div ref={worldRef} className={styles.world} data-platformer-world data-render-scale="0" data-camera-x="0" style={{ width: WORLD.width, height: WORLD.height, transformOrigin: 'top left' }}>
           <svg className={styles.landscape} viewBox={`0 0 ${WORLD.width} ${WORLD.height}`} preserveAspectRatio="none" aria-hidden="true" shapeRendering="crispEdges">
             <defs><linearGradient id="sky" x2="0" y2="1"><stop stopColor="#8fc8ef"/><stop offset="1" stopColor="#dff1f3"/></linearGradient></defs>
             <rect width={WORLD.width} height={WORLD.height} fill="url(#sky)"/>
@@ -331,7 +348,7 @@ export function GameMode({ content, language, messages, sectionLabels, languageN
             data-testid="platformer-player"
             data-state="idle"
             data-x="105"
-            className={styles.character}
+            className={`${styles.character} ${styles.characterIdle}`}
             style={{
               '--player-x': '105px',
               '--player-y': `${WORLD.floorY - 140}px`,
@@ -340,14 +357,14 @@ export function GameMode({ content, language, messages, sectionLabels, languageN
             role="img"
             aria-label={messages.characterLabel}
           >
-            <img src={characterReference} alt="" draggable="false" />
+            <span className={styles.characterSprite} aria-hidden="true" />
           </div>
         </div>
         <div className={styles.sceneCaption} aria-live="polite" ref={captionRef}>
           {messages.positionLabel}: {sectionLabels.presentation}
         </div>
       </section>
-      <footer className={styles.controlBar}>
+      <footer className={styles.controlBar} data-testid="game-controls">
         <p><kbd>←</kbd><kbd>→</kbd> {language === 'pt' ? 'mover' : 'move'} <kbd>{language === 'pt' ? 'Espaço' : 'Space'}</kbd> {messages.jumpHint}</p>
         <div className={styles.touchControls} role="group" aria-label={messages.controlsLabel}>
           <button
@@ -420,4 +437,8 @@ function LandmarkArt({ type }: { type: LandmarkType }) {
   if (type === 'workbench') return <svg {...common}><path d="M12 42h76v12H12zM19 54h10v38H19zM72 54h10v38H72z" fill="#8d6d4c"/><path d="M24 18h54v20H24zM31 22h40v12H31z" fill="#d8e9e5" stroke="#47625d" strokeWidth="4"/><path d="M45 35v12h24" fill="none" stroke="#47625d" strokeWidth="4"/></svg>;
   if (type === 'bookshelf') return <svg {...common}><path d="M13 11h74v82H13z" fill="#896846" stroke="#614b39" strokeWidth="5"/><path d="M18 40h64v6H18zM18 67h64v6H18z" fill="#e1c392"/><path d="M23 16h11v21H23zM37 19h13v18H37zM56 14h10v23H56zM70 20h8v17h-8zM22 47h14v16H22zM41 49h9v14h-9zM56 46h17v17H56zM22 75h10v14H22zM37 77h17v12H37zM61 76h14v13H61z" fill="#55776b" stroke="#384f4a" strokeWidth="2"/></svg>;
   return <svg {...common}><path d="M50 9 82 43 50 75 18 43z" fill="#d6e5d5" stroke="#a6bb9b" strokeWidth="5"/><path d="M50 17 72 43 50 66 28 43z" fill="#fff1bf"/><path d="M50 25 61 43 50 56 39 43z" fill="#fff"/><path d="M31 80h38v10H31zM22 91h56v7H22z" fill="#88755d"/></svg>;
+}
+
+function capitalize(value: string): string {
+  return `${value[0].toUpperCase()}${value.slice(1)}`;
 }

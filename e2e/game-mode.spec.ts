@@ -14,6 +14,7 @@ test('jumping near a landmark opens its card and game controls remain responsive
   await page.goto('/');
   const gameHeader = page.getByTestId('game-header');
   const scene = page.locator('#game-world');
+  const gameControls = page.getByTestId('game-controls');
   await expect(page.getByRole('region', { name: 'Cenário horizontal do portfólio' })).toBeVisible();
   const character = page.getByTestId('platformer-player');
   const world = page.locator('[data-platformer-world]');
@@ -111,11 +112,13 @@ test('jumping near a landmark opens its card and game controls remain responsive
   await page.getByRole('button', { name: 'Institutional mode' }).click();
   await expect(page.getByRole('heading', { level: 1, name: 'Guilherme Niederle' })).toBeVisible();
   await expect(page.getByTestId('institutional-header')).toBeVisible();
+  await page.getByTestId('institutional-menu-toggle').click();
   await page.getByRole('button', { name: 'Game mode' }).click();
   await expect(gameHeader).toBeVisible();
 
   for (const viewport of [
     { width: 2560, height: 1440 },
+    { width: 3440, height: 1440 },
     { width: 1366, height: 768 },
     { width: 1024, height: 768 },
     { width: 768, height: 1024 },
@@ -123,11 +126,22 @@ test('jumping near a landmark opens its card and game controls remain responsive
     { width: 390, height: 844 },
     { width: 320, height: 740 },
   ]) {
+    const playerXBeforeResize = Number(await character.getAttribute('data-x'));
     await page.setViewportSize(viewport);
     await expect(gameHeader).toBeVisible();
     const bounds = await scene.boundingBox();
+    const controlsBounds = await gameControls.boundingBox();
+    const renderedScale = Number(await world.getAttribute('data-render-scale'));
+    const cameraX = Number(await world.getAttribute('data-camera-x'));
     expect(bounds?.width).toBe(viewport.width);
-    expect(bounds?.height).toBe(viewport.height);
+    expect(bounds?.height).toBeLessThan(viewport.height);
+    expect(controlsBounds?.y).toBeGreaterThanOrEqual((bounds?.y ?? 0) + (bounds?.height ?? 0));
+    expect((controlsBounds?.y ?? 0) + (controlsBounds?.height ?? 0)).toBeLessThanOrEqual(viewport.height);
+    expect(renderedScale).toBeGreaterThanOrEqual(0.28);
+    expect(renderedScale).toBeLessThanOrEqual(0.65);
+    expect(cameraX).toBeGreaterThanOrEqual(0);
+    expect(cameraX).toBeLessThanOrEqual(Math.max(0, 4800 - viewport.width / renderedScale));
+    expect(Number(await character.getAttribute('data-x'))).toBe(playerXBeforeResize);
     expect(await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth)).toBe(false);
 
     if (viewport.width === 390) {
@@ -148,6 +162,9 @@ test('jumping near a landmark opens its card and game controls remain responsive
       await expect(character).toHaveCSS('animation-name', 'none');
       await page.emulateMedia({ reducedMotion: 'no-preference' });
     }
+    if (viewport.width === 3440) {
+      await page.screenshot({ path: testInfo.outputPath('game-ultrawide.png') });
+    }
   }
 
   const touchContext = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
@@ -159,6 +176,22 @@ test('jumping near a landmark opens its card and game controls remain responsive
   await touchPage.getByRole('button', { name: 'Fechar painel' }).tap();
   await expect(touchPage.getByRole('button', { name: 'Pular' })).toBeFocused();
   await touchContext.close();
+
+  const landscapeTouchContext = await browser.newContext({ viewport: { width: 844, height: 390 }, isMobile: true, hasTouch: true });
+  const landscapeTouchPage = await landscapeTouchContext.newPage();
+  captureErrors(landscapeTouchPage);
+  await landscapeTouchPage.goto('/');
+  const landscapeControls = landscapeTouchPage.getByTestId('game-controls');
+  await expect(landscapeControls.getByRole('button', { name: 'Mover para a esquerda' })).toBeVisible();
+  await expect(landscapeControls.getByRole('button', { name: 'Mover para a direita' })).toBeVisible();
+  await landscapeControls.getByRole('button', { name: 'Pular' }).tap();
+  await expect(landscapeTouchPage.getByRole('dialog', { name: 'Guilherme Niederle' })).toBeVisible();
+  await landscapeTouchPage.getByRole('button', { name: 'Fechar painel' }).tap();
+  const landscapeSceneBounds = await landscapeTouchPage.locator('#game-world').boundingBox();
+  const landscapeControlBounds = await landscapeControls.boundingBox();
+  expect(landscapeControlBounds?.y).toBeGreaterThanOrEqual((landscapeSceneBounds?.y ?? 0) + (landscapeSceneBounds?.height ?? 0));
+  await landscapeTouchPage.screenshot({ path: testInfo.outputPath('game-mobile-landscape.png') });
+  await landscapeTouchContext.close();
 
   expect(browserErrors).toEqual([]);
 });

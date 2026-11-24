@@ -1,6 +1,6 @@
 # Planejamento do portfólio
 
-**Status:** planejamento visual e arquitetura técnica aprovados; cinco skills especializadas criadas; scaffold e modo institucional validados. A primeira versão do modo jogo existe como protótipo, mas a reconstrução mecânica aprovada conceitualmente ainda não foi iniciada. Este documento é a referência oficial do projeto.
+**Status:** planejamento visual e arquitetura técnica aprovados; cinco skills especializadas criadas; scaffold, modo institucional e uma primeira versão funcional do modo jogo validados. O modo jogo já possui simulação básica, câmera e interações por contato; animações e assets finais, ajustes responsivos e a mecânica especial do bloco de competências permanecem parciais ou pendentes. Este documento é a referência oficial do projeto.
 
 ## 1. Conceito e objetivos
 
@@ -12,7 +12,7 @@ A exploração deve dar personalidade ao portfólio sem esconder informações d
 
 - Identidade visual própria em todos os elementos gráficos e sonoros que venham a ser produzidos.
 - Conteúdo profissional claro, fiel ao currículo e consistente nos dois modos.
-- Navegação direta por exploração, menu/mapa e painéis informativos.
+- Navegação por exploração e painéis informativos no modo jogo; navegação convencional por seções no modo institucional.
 - Experiência adaptada a desktop, tablet e mobile desde o planejamento.
 - Português e inglês nos dois modos.
 
@@ -31,9 +31,10 @@ Os esboços aprovados foram preservados como referências de concepção. Devem 
 - Apresenta um único mundo horizontal contínuo, sem divisão em fases.
 - Funciona como uma experiência real de plataforma 2D: movimento contínuo com aceleração e desaceleração, gravidade, velocidade vertical, pulo, queda, aterrissagem e colisões.
 - A câmera acompanha o personagem e desloca o mundo suavemente, respeitando os limites do cenário.
-- Cada um dos seis pontos possui uma interação contextual própria, coerente com sua representação aprovada.
+- Os pontos comuns abrem seus cards quando o personagem entra em contato com as respectivas áreas de ativação. Competências terá uma colisão especial pela parte inferior do bloco suspenso.
 - As mecânicas permanecem simples e servem à apresentação do portfólio; não haverá sistema de jogo completo, inimigos ou colecionáveis.
-- O menu ou mapa de seções permite acesso direto a qualquer ponto, sem obrigar o visitante a percorrer o cenário.
+- O header do jogo contém somente a alternância para o modo institucional e o seletor de idioma; não há menu de seções no jogo.
+- O visitante que não quiser jogar pode alternar para o modo institucional, que oferece navegação convencional pelas seis seções.
 
 ### Modo institucional
 
@@ -83,7 +84,7 @@ O tamanho do viewport será medido na área efetiva de jogo, não inferido apena
 | Tablet, 768 × 650 px | 0,406 | 1890 unidades |
 | Mobile, 390 × 520 px | 0,325 | 1200 unidades |
 
-Assim, desktop exibe parte do mundo e mobile acompanha um trecho menor, mantendo a exploração contínua e o acesso direto pelo menu. A câmera deve usar as dimensões reais do viewport para seguir o personagem, centralizá-lo relativamente e limitar o enquadramento nos extremos do mundo.
+Assim, desktop exibe parte do mundo e mobile acompanha um trecho menor, mantendo a exploração contínua. A câmera deve usar as dimensões reais do viewport para seguir o personagem, centralizá-lo relativamente e limitar o enquadramento nos extremos do mundo.
 
 ## 4. Conteúdo e organização
 
@@ -175,11 +176,13 @@ Os painéis seguem a direção visual aprovada nas referências abaixo. As image
 
 ### Interação
 
-- Cada ponto de interesse pode abrir um painel por interação contextual, clique/toque ou seleção pelo menu/mapa.
-- A interação não deve depender exclusivamente de movimento preciso, salto ou descoberta por tentativa e erro.
+- No modo jogo, não há menu de seções no header nem seleção dos pontos por mouse. A navegação pelos pontos ocorre com o personagem; o header do jogo contém somente alternância para o modo institucional e seletor PT/EN.
+- Os cinco pontos comuns abrem seus painéis quando o personagem entra em contato com suas respectivas áreas de ativação. Teclado ou controles de toque movimentam e fazem o personagem pular; o contato com o ícone, e não o início do pulo, dispara o painel.
+- Competências mantém o computador aprovado e terá um bloco suspenso integrado. O painel abre quando o personagem atinge a face inferior do bloco durante a subida; esta mecânica especial ainda está pendente e não deve ser considerada implementada até existir colisão e resposta próprias.
+- O modo institucional continua oferecendo navegação convencional pelas seis seções e acesso a todas as informações sem exigir que o visitante jogue.
 - Os painéis devem identificar a seção, apresentar conteúdo legível e oferecer um controle evidente para fechar e retornar ao cenário.
 - Cartões de experiência agrupam empresa, período, descrição das contribuições e tecnologias utilizadas.
-- Painéis e navegação devem funcionar com teclado e leitores de tela, manter foco visível e oferecer alternativa sem movimento.
+- Painéis devem funcionar com teclado e leitores de tela, manter foco visível e restaurar o foco ao fechar. A alternativa sem movimento e sem exigência de habilidade de jogo é o modo institucional.
 - Redução de movimento deve ser respeitada quando solicitada pelo sistema ou pelo visitante.
 
 Fechar o painel retorna ao cenário e à posição/seção de origem. O fechamento deve estar disponível por controle visível e teclado; comportamento por tecla Escape pode ser adotado se não conflitar com acessibilidade ou conteúdo.
@@ -188,32 +191,31 @@ Fechar o painel retorna ao cenário e à posição/seção de origem. O fechamen
 
 - A simulação mantém estado tipado do mundo e do personagem em coordenadas próprias: posição horizontal e vertical, velocidades, direção e contato com superfícies.
 - Movimento, aceleração, desaceleração, gravidade, pulo e colisões são atualizados por uma simulação TypeScript independente da renderização React. React continua responsável pelos estados de interface, como idioma, modo e painel ativo.
-- A simulação considera o tempo decorrido entre atualizações, limita deltas anormais após suspensão da aba e resolve colisões com o chão, limites do mundo e objetos explicitamente interativos. Elementos decorativos não são colisores por padrão.
+- A simulação considera o tempo decorrido entre atualizações e limita deltas anormais após suspensão da aba. A implementação atual resolve aterrissagem no chão e limites horizontais do mundo. As áreas dos pontos comuns são gatilhos de ativação por sobreposição, não colisores sólidos que bloqueiam o personagem.
 - A câmera acompanha o personagem suavemente perto do centro do viewport e respeita os limites horizontais do mundo. O cenário se move em relação ao personagem durante a exploração; não se resume a deslocar o personagem sobre uma tela estática.
 - Os estados do personagem distinguem repouso, caminhada, subida, queda, aterrissagem e interação. Poses e recortes devem ser verificados para que nenhuma transição mostre sprite parcial ou incompatível com a ação.
-- **Competências técnicas:** o computador permanece como o ponto aprovado. Um bloco suspenso integrado a esse ponto recebe uma colisão por baixo; quando o personagem salta e atinge a face inferior, o bloco reage e abre o painel de competências. Ele pertence à interação existente e não cria uma sétima seção.
-- Os outros cinco pontos usam interações de contexto com o objeto já aprovado e uma resposta visual própria, a ser detalhada sem acrescentar pontos, obstáculos ou colecionáveis.
-- O menu mantém acesso direto a qualquer painel sem exigir movimento, pulo ou colisão. Abrir um painel pausa a simulação; fechá-lo devolve o visitante ao mesmo contexto do mundo.
+- **Competências técnicas — pendente:** o computador permanece como o ponto aprovado. Um bloco suspenso integrado a esse ponto deverá receber uma colisão por baixo; quando o personagem saltar e atingir a face inferior, o bloco reagirá e abrirá o painel. Ele pertence à interação existente e não cria uma sétima seção.
+- **Outros cinco pontos — implementados parcialmente:** contato com suas áreas de ativação abre os painéis e há indicação contextual de proximidade. Respostas visuais próprias de cada objeto ainda estão pendentes; não acrescentar pontos, obstáculos ou colecionáveis.
+- Abrir um painel pausa a simulação; fechá-lo devolve o visitante ao mesmo contexto do mundo.
 - Entrada mantida deve continuar até soltura, cancelamento ou perda de foco. Teclado e toque têm suporte; toque não depende de temporização precisa.
 - Respeitar `prefers-reduced-motion` sem retirar o acesso aos conteúdos ou às ações.
 
 ## 7. Interface superior
 
-A barra superior conterá:
+O header varia conforme o modo, sem duplicar as decisões de conteúdo:
 
-- identificação do portfólio;
-- menu ou mapa das seis seções;
-- alternância entre modo jogo e modo institucional;
-- seletor de idioma PT/EN.
+- **Modo jogo:** somente controle para alternar ao modo institucional e seletor de idioma PT/EN; sobreposto ao cenário, sem ocupar o fluxo do mundo.
+- **Modo institucional:** mantém identificação profissional, navegação convencional para as seis seções, seletor de idioma e alternância de modo.
 
-Os controles devem permanecer fáceis de localizar sem competir com o conteúdo. Em telas menores, podem ser agrupados de forma compacta, mantendo acesso claro aos modos, idiomas e seções.
+Os controles devem permanecer fáceis de localizar sem competir com o conteúdo. Em telas menores, devem continuar utilizáveis e respeitar as áreas seguras dos dispositivos.
 
 ## 8. Responsividade e acessibilidade
 
 O projeto deve considerar desktop, tablet e mobile desde o desenho da experiência.
 
-- Desktop: controles por teclado e seleção direta por mouse.
-- Mobile: controles de toque dimensionados para uso confortável, movimento contínuo enquanto pressionados e navegação direta por seções.
+- Modo jogo desktop: controles de teclado para movimento e pulo; não há seleção dos pontos por mouse.
+- Modo jogo mobile: controles de toque dimensionados para uso confortável, movimento contínuo enquanto pressionados e pulo para alcançar os pontos.
+- Modo institucional: navegação convencional por teclado, mouse e toque, sem exigir exploração do jogo.
 - A posição do personagem, os pontos de interesse e a câmera usam as mesmas coordenadas lógicas em todos os dispositivos; o viewport enquadra a parte relevante do mundo sem distorcer as proporções.
 - O layout mobile não será apenas uma redução do panorama desktop. A experiência pode enquadrar trechos do mesmo mundo contínuo, reorganizar a apresentação dos marcos e usar painéis adaptados à tela.
 - Painéis devem manter hierarquia, leitura e controles de fechamento em telas estreitas.
@@ -221,7 +223,7 @@ O projeto deve considerar desktop, tablet e mobile desde o desenho da experiênc
 - **Tablet:** painel central mais amplo, preservando margens para contextualizar o cenário e controles adequados a toque e teclado.
 - **Mobile:** painel tipo folha que ocupa boa parte ou quase toda a tela, com rolagem interna, botão de fechar e controles de toque confortáveis; uma faixa ou trecho do cenário pode permanecer visível para preservar contexto.
 - A experiência mobile deve reenquadrar trechos da paisagem contínua, não reduzir a imagem desktop inteira. A composição mantém os marcos identificáveis e evita que o painel cubra conteúdo essencial.
-- Nenhuma informação essencial dependerá apenas de cor, animação, áudio ou habilidade de jogo.
+- Nenhuma informação essencial dependerá apenas de cor, animação ou áudio. Todas as informações também estão disponíveis no modo institucional, sem exigir habilidade de jogo.
 - Contraste, foco, semântica, nomes acessíveis e opção de reduzir movimento devem ser considerados no projeto visual e funcional.
 
 ## 9. Direção artística e propriedade intelectual
@@ -267,7 +269,7 @@ Esses detalhes permanecem abertos e devem respeitar as decisões já aprovadas. 
 - Cenário e personagem são camadas visuais. Textos, ações, hotspots e painéis permanecem no DOM para suportar semântica, teclado e tecnologias assistivas.
 - Vitest e Playwright estão instalados e configurados. Os testes cobrem o scaffold e os fluxos implementados dos modos institucional e jogo; a verificação de TypeScript e o build de produção também passam. A cobertura não representa ainda todos os requisitos do portfólio final.
 
-## 12. Estado e próxima etapa
+## 12. Estado e próximas etapas
 
 O planejamento visual, funcional e técnico está concluído. As referências aprovadas do personagem e do cenário estão preservadas em `docs/referencias/`; a direção visual dos painéis também está aprovada e documentada. A direção mecânica do modo jogo foi aprovada conceitualmente e está documentada; a dimensão 4800 × 1600 é recomendação ainda não congelada. A arquitetura técnica está definida nesta seção. O agente principal é `.codex/agents/portfolio-architect.toml`.
 
@@ -279,6 +281,12 @@ As cinco skills especializadas já foram criadas em `.agents/skills/`:
 - [responsive-accessibility](../.agents/skills/responsive-accessibility/SKILL.md)
 - [testing-quality](../.agents/skills/testing-quality/SKILL.md)
 
-O scaffold inicial foi criado com React, Vite e TypeScript configurados, além de Vitest e Playwright instalados e configurados. O modo institucional continua implementado e os dois modos usam a mesma fonte de conteúdo profissional. No modo jogo, a simulação básica de movimento e física, incluindo gravidade, pulo, aterrissagem, colisão com o chão e limites do mundo, e o acompanhamento da câmera já estão implementados. O sistema contextual de interações com os seis pontos, incluindo a colisão especial do bloco de competências e o acesso direto pelo menu Seções, ainda está pendente.
+O scaffold inicial foi criado com React, Vite e TypeScript configurados, além de Vitest e Playwright instalados e configurados. O modo institucional continua implementado e os dois modos usam a mesma fonte de conteúdo profissional.
 
-TypeScript, testes unitários, testes Playwright e build de produção passaram para o estado atual do protótipo. A próxima etapa autorizada é implementar o sistema de interações descrito neste planejamento; ela ainda não foi iniciada. O conceito visual aprovado do cenário e do personagem continua sendo referência; assets finais de produção e deploy permanecem pendentes.
+**Implementado no modo jogo:** simulação básica com movimento horizontal contínuo, aceleração e desaceleração, gravidade, pulo, queda, aterrissagem no chão e limites horizontais do mundo; câmera horizontal suave com limites; registro dos seis pontos; indicação de proximidade; ativação dos cinco pontos comuns quando o personagem entra em contato com seus ícones; pausa da simulação durante o painel e retomada ao fechar; controles por teclado e controles de toque em telas estreitas.
+
+**Parcialmente implementado:** os gatilhos dos pontos são áreas de sobreposição e não colisores físicos sólidos; o computador ainda usa o gatilho genérico de contato, que não substitui a mecânica especial pendente; respostas visuais específicas dos marcos e animações completas do personagem ainda não existem; controles de toque e enquadramento precisam de validação adicional em orientações e dimensões representativas, especialmente em telas móveis em paisagem.
+
+**Pendente:** colisão especial pela parte inferior e reação do bloco de competências; produção e otimização dos assets finais de pixel art; respostas visuais próprias dos outros cinco objetos. Não existe menu de seções no modo jogo; o modo institucional permanece a rota de navegação direta para todas as informações.
+
+TypeScript, testes unitários, testes Playwright e build de produção passaram em validações anteriores do protótipo; a cobertura não representa todos os requisitos finais. As próximas etapas devem tratar das pendências listadas acima e validar o comportamento em desktop, tablet e mobile. O conceito visual aprovado do cenário e do personagem continua sendo referência; assets finais de produção e deploy permanecem pendentes.

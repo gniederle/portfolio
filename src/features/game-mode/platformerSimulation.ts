@@ -109,7 +109,8 @@ export function stepCamera(
   const target = clamp(player.x + player.width / 2 - viewportWorldWidth / 2, 0, maxX);
   const dt = clamp(elapsedSeconds, 0, PHYSICS.maxFrameDelta);
   const blend = reduceMotion ? 1 : 1 - Math.exp(-PHYSICS.cameraSmoothing * dt);
-  const x = camera.x + (target - camera.x) * blend;
+  const currentX = clamp(camera.x, 0, maxX);
+  const x = currentX + (target - currentX) * blend;
   return { x: Math.abs(target - x) < 0.01 ? target : x };
 }
 

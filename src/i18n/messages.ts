@@ -5,6 +5,8 @@ export interface InstitutionalMessages {
   metaDescription: string;
   skipLink: string;
   navigationLabel: string;
+  openNavigation: string;
+  closeNavigation: string;
   languageLabel: string;
   gameMode: string;
   institutionalMode: string;
@@ -34,6 +36,8 @@ export const institutionalMessages: Record<Language, InstitutionalMessages> = {
     metaDescription: 'Portfólio profissional de Guilherme Niederle, engenheiro de software com atuação em backend e full stack.',
     skipLink: 'Pular para o conteúdo principal',
     navigationLabel: 'Navegação principal',
+    openNavigation: 'Abrir navegação',
+    closeNavigation: 'Fechar navegação',
     languageLabel: 'Idioma do site',
     gameMode: 'Modo jogo',
     institutionalMode: 'Modo institucional',
@@ -75,6 +79,8 @@ export const institutionalMessages: Record<Language, InstitutionalMessages> = {
     metaDescription: 'Professional portfolio of Guilherme Niederle, a software engineer focused on backend and full stack development.',
     skipLink: 'Skip to main content',
     navigationLabel: 'Main navigation',
+    openNavigation: 'Open navigation',
+    closeNavigation: 'Close navigation',
     languageLabel: 'Website language',
     gameMode: 'Game mode',
     institutionalMode: 'Institutional mode',

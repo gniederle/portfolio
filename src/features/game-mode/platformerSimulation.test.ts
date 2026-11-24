@@ -66,4 +66,10 @@ describe('platformer simulation', () => {
     expect(atStart.x).toBeLessThan(10);
     expect(stepCamera({ x: 0 }, player, 1800, 1 / 60, WORLD, true).x).toBe(1328);
   });
+
+  it('clamps the current camera position immediately when a resize reduces its world-space range', () => {
+    const resizedCamera = stepCamera({ x: 2600 }, createPlayer(3000), 4300, 1 / 60);
+    expect(resizedCamera.x).toBeGreaterThanOrEqual(0);
+    expect(resizedCamera.x).toBeLessThanOrEqual(WORLD.width - 4300);
+  });
 });
