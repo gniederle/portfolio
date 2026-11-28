@@ -4,8 +4,15 @@ import { GameHeader } from './GameHeader';
 import type { GameMessages } from './gameMessages';
 import type { Language, PortfolioContent, PortfolioMode, PortfolioSectionId } from '../../types/portfolio';
 import { WORLD, createPlayer, stepCamera, stepPlayer } from './platformerSimulation';
-import { findHitLandmark, findNearbyLandmark, LANDMARKS, type LandmarkType } from './landmarkRegistry';
+import { findNearbyLandmark, LANDMARKS, type LandmarkType } from './landmarkRegistry';
 import { getViewportPresentation } from './viewportPresentation';
+import worldBackground from '../../assets/game/environment/world-background.png';
+import presentationPortal from '../../assets/game/landmarks/presentation-portal.png';
+import careerSignpost from '../../assets/game/landmarks/career-signpost.png';
+import skillsComputerBlock from '../../assets/game/landmarks/skills-computer-block.png';
+import contributionsWorkbench from '../../assets/game/landmarks/contributions-workbench.png';
+import educationBookshelf from '../../assets/game/landmarks/education-bookshelf.png';
+import contactCrystal from '../../assets/game/landmarks/contact-crystal.png';
 import styles from './GameMode.module.css';
 
 interface GameModeProps {
@@ -26,6 +33,7 @@ export function GameMode({ content, language, messages, sectionLabels, languageN
   const panelRef = useRef<HTMLElement>(null);
   const sceneRef = useRef<HTMLElement>(null);
   const jumpButtonRef = useRef<HTMLButtonElement>(null);
+  const interactButtonRef = useRef<HTMLButtonElement>(null);
   const worldRef = useRef<HTMLDivElement>(null);
   const playerElementRef = useRef<HTMLDivElement>(null);
   const captionRef = useRef<HTMLDivElement>(null);
@@ -37,6 +45,16 @@ export function GameMode({ content, language, messages, sectionLabels, languageN
   const inputRef = useRef({ direction: 0 as -1 | 0 | 1, jumpPressed: false });
   const viewportSizeRef = useRef({ width: 0, height: 0, scale: 1, offsetX: 0, offsetY: 0, worldWidth: WORLD.width });
 
+  const openNearbyPanel = useCallback((trigger: HTMLElement | null = sceneRef.current) => {
+    const section = nearbyLandmarkRef.current;
+    if (!section || activeSectionRef.current) return;
+    inputRef.current.direction = 0;
+    inputRef.current.jumpPressed = false;
+    triggerRef.current = trigger;
+    activeSectionRef.current = section;
+    setActiveSection(section);
+  }, []);
+
   useEffect(() => {
     const viewport = sceneRef.current;
     if (!viewport) return;
@@ -44,6 +62,7 @@ export function GameMode({ content, language, messages, sectionLabels, languageN
       const rect = viewport.getBoundingClientRect();
       const presentation = getViewportPresentation(rect.width, rect.height, WORLD);
       viewportSizeRef.current = { width: rect.width, height: rect.height, ...presentation };
+      worldRef.current?.style.setProperty('--world-ui-scale', `${1 / presentation.scale}`);
       viewport.style.setProperty('--floor-screen-y', `${rect.height * (WORLD.floorY / WORLD.height)}px`);
       viewport.style.setProperty('--scene-sky', presentation.skyBackground);
       viewport.style.setProperty('--ground-grass-height', `${presentation.groundGrassHeight}px`);
@@ -75,7 +94,6 @@ export function GameMode({ content, language, messages, sectionLabels, languageN
         const input = inputRef.current;
         const previousPlayer = playerStateRef.current;
         const player = stepPlayer(previousPlayer, input, elapsed);
-        const activatedLandmark = findHitLandmark(previousPlayer, player);
         input.jumpPressed = false;
         playerStateRef.current = player;
         const { scale, offsetX, offsetY, worldWidth: viewportWorldWidth } = viewportSizeRef.current;
@@ -122,24 +140,18 @@ export function GameMode({ content, language, messages, sectionLabels, languageN
           setNearbyLandmark(nearby);
         }
         const caption = nearby
-          ? `${sectionLabels[nearby]} — ${messages.jumpPrompt}`
+          ? `${messages.nearbyLabel}: ${sectionLabels[nearby]}. ${messages.interactionPrompt}`
           : `${messages.positionLabel}: ${sectionLabels[nearest.id]}`;
         if (caption !== previousCaption && captionRef.current) {
           captionRef.current.textContent = caption;
           previousCaption = caption;
-        }
-        if (activatedLandmark) {
-          input.direction = 0;
-          if (!triggerRef.current) triggerRef.current = sceneRef.current;
-          activeSectionRef.current = activatedLandmark.id;
-          setActiveSection(activatedLandmark.id);
         }
       }
       frame = window.requestAnimationFrame(tick);
     };
     frame = window.requestAnimationFrame(tick);
     return () => window.cancelAnimationFrame(frame);
-  }, [messages.jumpPrompt, messages.positionLabel, sectionLabels]);
+  }, [messages.interactionPrompt, messages.nearbyLabel, messages.positionLabel, sectionLabels]);
 
   useEffect(() => {
     const releaseAll = () => { inputRef.current.direction = 0; inputRef.current.jumpPressed = false; };
@@ -149,6 +161,10 @@ export function GameMode({ content, language, messages, sectionLabels, languageN
       const key = event.key.toLowerCase();
       if (['arrowleft', 'a'].includes(key)) { event.preventDefault(); inputRef.current.direction = -1; }
       else if (['arrowright', 'd'].includes(key)) { event.preventDefault(); inputRef.current.direction = 1; }
+      else if (key === 'enter') {
+        event.preventDefault();
+        if (!event.repeat) openNearbyPanel(sceneRef.current);
+      }
       else if (['arrowup', 'w', ' '].includes(key)) {
         event.preventDefault();
         if (!event.repeat) {
@@ -172,7 +188,7 @@ export function GameMode({ content, language, messages, sectionLabels, languageN
       window.removeEventListener('blur', releaseAll);
       document.removeEventListener('visibilitychange', releaseAll);
     };
-  }, []);
+  }, [openNearbyPanel]);
 
   const jump = useCallback((trigger?: HTMLButtonElement) => {
     triggerRef.current = trigger ?? sceneRef.current;
@@ -311,26 +327,17 @@ export function GameMode({ content, language, messages, sectionLabels, languageN
       />
       <section id="game-world" className={styles.sceneViewport} aria-label={messages.sceneLabel} tabIndex={0} ref={sceneRef}>
         <div ref={worldRef} className={styles.world} data-platformer-world data-render-scale="0" data-camera-x="0" style={{ width: WORLD.width, height: WORLD.height, transformOrigin: 'top left' }}>
-          <svg className={styles.landscape} viewBox={`0 0 ${WORLD.width} ${WORLD.height}`} preserveAspectRatio="none" aria-hidden="true" shapeRendering="crispEdges">
-            <defs><linearGradient id="sky" x2="0" y2="1"><stop stopColor="#8fc8ef"/><stop offset="1" stopColor="#dff1f3"/></linearGradient></defs>
-            <rect width={WORLD.width} height={WORLD.height} fill="url(#sky)"/>
-            <g transform={`scale(1 ${WORLD.floorY / 488})`}>
-            <g fill="#f4fbfa" opacity=".9"><path d="M170 110h92v10h-92z M188 91h28v19h-28z M215 75h31v35h-31z M246 88h24v22h-24z M420 150h60v8h-60z M433 138h22v12h-22z M455 128h18v22h-18z M2800 106h92v10h-92z M2818 86h28v20h-28z M2847 72h30v34h-30z M2877 85h25v21h-25z"/></g>
-            <path d="M0 362 210 225 420 362 760 190 1030 362 1370 240 1700 362 2075 205 2400 362 2710 234 3025 362 3370 190 3700 362 4050 225 4380 362 4590 260 4800 355v130H0z" fill="#a7cfc5"/>
-            <path d="M0 397 330 281 650 398 1000 275 1320 399 1660 292 2020 399 2390 274 2730 400 3070 286 3390 398 3730 266 4070 400 4440 290 4800 389v110H0z" fill="#82b9a8"/>
-            <path d="M0 450q420-78 760 4t780-2 770 0 820-1 840 1 830-2v100H0z" fill="#a9cd8d"/>
-            <rect y="488" width={WORLD.width} height="54" fill="#729b57"/><rect y="495" width={WORLD.width} height="12" fill="#9bbd6b"/><rect y="508" width={WORLD.width} height="28" fill="#b99262"/><rect y="536" width={WORLD.width} height="112" fill="#705b4c"/>
-            <path d="M0 550h4800v8H0z" fill="#5b4a42" opacity=".45"/>
-            {Array.from({ length: 32 }, (_, index) => <path key={index} d={`M${index * 155 + 18} 497h18v8h-18z M${index * 155 + 94} 500h10v6h-10z`} fill={index % 2 ? '#5e824f' : '#85a85e'} opacity=".8"/>)}
-            </g>
-          </svg>
-          <div className={styles.distantTree} style={{ left: 700, top: 430 * (WORLD.floorY / 488) }} aria-hidden="true"><i/><i/><i/><b/></div>
-          <div className={styles.distantTree} style={{ left: 3280, top: 430 * (WORLD.floorY / 488) }} aria-hidden="true"><i/><i/><i/><b/></div>
+          <img className={styles.landscape} src={worldBackground} alt="" aria-hidden="true" draggable={false} />
           {LANDMARKS.map((landmark) => (
             <div
               key={landmark.id}
               className={`${styles.landmark} ${styles[landmark.type]}`}
-              style={{ left: landmark.x, top: `${landmark.interaction.hitbox.top}px` }}
+              style={{
+                left: landmark.x,
+                top: landmark.y - landmark.visual.frameSize,
+                '--landmark-size': `${landmark.visual.frameSize}px`,
+                '--landmark-baseline-offset': `${landmark.visual.baselineOffset}px`,
+              } as React.CSSProperties}
               aria-hidden="true"
               data-landmark-id={landmark.id}
               data-world-x={landmark.x}
@@ -339,7 +346,7 @@ export function GameMode({ content, language, messages, sectionLabels, languageN
               <LandmarkArt type={landmark.type} />
               <span>{sectionLabels[landmark.id]}</span>
               {nearbyLandmark === landmark.id && (
-                <span className={styles.interactionHint}>{messages.jumpPrompt}</span>
+                <span className={styles.interactionHint}>{messages.interactionPrompt}</span>
               )}
             </div>
           ))}
@@ -365,7 +372,11 @@ export function GameMode({ content, language, messages, sectionLabels, languageN
         </div>
       </section>
       <footer className={styles.controlBar} data-testid="game-controls">
-        <p><kbd>←</kbd><kbd>→</kbd> {language === 'pt' ? 'mover' : 'move'} <kbd>{language === 'pt' ? 'Espaço' : 'Space'}</kbd> {messages.jumpHint}</p>
+        <p>
+          <kbd>←</kbd><kbd>→</kbd> {messages.moveHint}
+          <kbd>{language === 'pt' ? 'Espaço' : 'Space'}</kbd> {messages.jumpHint}
+          <kbd>Enter</kbd> {messages.interactHint}
+        </p>
         <div className={styles.touchControls} role="group" aria-label={messages.controlsLabel}>
           <button
             type="button"
@@ -384,6 +395,18 @@ export function GameMode({ content, language, messages, sectionLabels, languageN
             onLostPointerCapture={stopMovement}
           >→</button>
           <button ref={jumpButtonRef} type="button" aria-label={messages.jump} onClick={() => jump(jumpButtonRef.current ?? undefined)}>↑</button>
+          <button
+            ref={interactButtonRef}
+            className={styles.interactControl}
+            type="button"
+            aria-label={nearbyLandmark ? `${messages.interact}: ${sectionLabels[nearbyLandmark]}` : messages.interactUnavailable}
+            disabled={!nearbyLandmark}
+            data-testid="game-interact"
+            onClick={() => openNearbyPanel(interactButtonRef.current)}
+          >
+            <span aria-hidden="true">↵</span>
+            <span className={styles.touchControlLabel} aria-hidden="true">{messages.interact}</span>
+          </button>
         </div>
       </footer>
       {activeSection && (
@@ -429,14 +452,17 @@ export function GameMode({ content, language, messages, sectionLabels, languageN
   );
 }
 
+const LANDMARK_ASSETS: Record<LandmarkType, string> = {
+  portal: presentationPortal,
+  sign: careerSignpost,
+  computer: skillsComputerBlock,
+  workbench: contributionsWorkbench,
+  bookshelf: educationBookshelf,
+  crystal: contactCrystal,
+};
+
 function LandmarkArt({ type }: { type: LandmarkType }) {
-  const common = { viewBox: '0 0 100 100', 'aria-hidden': true as const };
-  if (type === 'portal') return <svg {...common}><path d="M14 86V48a36 36 0 0 1 72 0v38H14z" fill="#c9ad82" stroke="#705b4c" strokeWidth="6"/><path d="M27 86V48a23 23 0 0 1 46 0v38z" fill="#ffe6aa" stroke="#f4fbfa" strokeWidth="3"/><path d="M8 87h84v10H8z" fill="#9b815f"/></svg>;
-  if (type === 'sign') return <svg {...common}><path d="M44 38h12v56H44z" fill="#78614d"/><path d="M10 19h74v22H10zM18 48h68v22H18z" fill="#dfbd7e" stroke="#705b4c" strokeWidth="4"/><path d="m69 25 9 5-9 5M29 54l-9 6 9 6" fill="none" stroke="#705b4c" strokeWidth="4"/></svg>;
-  if (type === 'computer') return <svg {...common}><path d="M10 15h80v55H10z" fill="#587a77" stroke="#344f50" strokeWidth="6"/><path d="M17 22h66v40H17z" fill="#d3e8e5"/><path d="M45 70h10v14H45zM32 84h36v8H32z" fill="#705b4c"/><path d="m34 40 10 9-10 9M49 58h17" fill="none" stroke="#387a70" strokeWidth="4"/></svg>;
-  if (type === 'workbench') return <svg {...common}><path d="M12 42h76v12H12zM19 54h10v38H19zM72 54h10v38H72z" fill="#8d6d4c"/><path d="M24 18h54v20H24zM31 22h40v12H31z" fill="#d8e9e5" stroke="#47625d" strokeWidth="4"/><path d="M45 35v12h24" fill="none" stroke="#47625d" strokeWidth="4"/></svg>;
-  if (type === 'bookshelf') return <svg {...common}><path d="M13 11h74v82H13z" fill="#896846" stroke="#614b39" strokeWidth="5"/><path d="M18 40h64v6H18zM18 67h64v6H18z" fill="#e1c392"/><path d="M23 16h11v21H23zM37 19h13v18H37zM56 14h10v23H56zM70 20h8v17h-8zM22 47h14v16H22zM41 49h9v14h-9zM56 46h17v17H56zM22 75h10v14H22zM37 77h17v12H37zM61 76h14v13H61z" fill="#55776b" stroke="#384f4a" strokeWidth="2"/></svg>;
-  return <svg {...common}><path d="M50 9 82 43 50 75 18 43z" fill="#d6e5d5" stroke="#a6bb9b" strokeWidth="5"/><path d="M50 17 72 43 50 66 28 43z" fill="#fff1bf"/><path d="M50 25 61 43 50 56 39 43z" fill="#fff"/><path d="M31 80h38v10H31zM22 91h56v7H22z" fill="#88755d"/></svg>;
+  return <img className={styles.landmarkArt} src={LANDMARK_ASSETS[type]} alt="" aria-hidden="true" draggable={false} />;
 }
 
 function capitalize(value: string): string {

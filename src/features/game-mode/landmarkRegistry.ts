@@ -8,23 +8,40 @@ export interface LandmarkDefinition {
   x: number;
   y: number;
   type: LandmarkType;
+  visual: {
+    frameSize: number;
+    baselineOffset: number;
+  };
   interaction: {
-    kind: 'collision';
+    kind: 'proximity';
     radius: number;
-    hitbox: { width: number; height: number; top: number };
   };
 }
 
-const ICON_TOP = 365 * (WORLD.floorY / 488);
-const ICON_HITBOX = { width: 100, height: 92, top: ICON_TOP };
+function defineLandmark(
+  id: PortfolioSectionId,
+  x: number,
+  type: LandmarkType,
+  frameSize: number,
+  baselineOffset: number,
+): LandmarkDefinition {
+  return {
+    id,
+    x,
+    y: WORLD.floorY,
+    type,
+    visual: { frameSize, baselineOffset },
+    interaction: { kind: 'proximity', radius: 170 },
+  };
+}
 
 export const LANDMARKS: readonly LandmarkDefinition[] = [
-  { id: 'presentation', x: 210, y: WORLD.floorY, type: 'portal', interaction: { kind: 'collision', radius: 170, hitbox: ICON_HITBOX } },
-  { id: 'career', x: 1040, y: WORLD.floorY, type: 'sign', interaction: { kind: 'collision', radius: 170, hitbox: ICON_HITBOX } },
-  { id: 'skills', x: 1900, y: WORLD.floorY, type: 'computer', interaction: { kind: 'collision', radius: 170, hitbox: ICON_HITBOX } },
-  { id: 'contributions', x: 2760, y: WORLD.floorY, type: 'workbench', interaction: { kind: 'collision', radius: 170, hitbox: ICON_HITBOX } },
-  { id: 'education', x: 3610, y: WORLD.floorY, type: 'bookshelf', interaction: { kind: 'collision', radius: 170, hitbox: ICON_HITBOX } },
-  { id: 'contact', x: 4450, y: WORLD.floorY, type: 'crystal', interaction: { kind: 'collision', radius: 170, hitbox: ICON_HITBOX } },
+  defineLandmark('presentation', 210, 'portal', 160, 0),
+  defineLandmark('career', 1040, 'sign', 128, 0),
+  defineLandmark('skills', 1900, 'computer', 136, 5),
+  defineLandmark('contributions', 2760, 'workbench', 168, 4),
+  defineLandmark('education', 3610, 'bookshelf', 148, 7),
+  defineLandmark('contact', 4450, 'crystal', 175, 8),
 ];
 
 export function findNearbyLandmark(player: PlayerState): LandmarkDefinition | null {
@@ -41,24 +58,4 @@ export function findNearbyLandmark(player: PlayerState): LandmarkDefinition | nu
   }
 
   return nearest;
-}
-
-export function findHitLandmark(
-  previousPlayer: PlayerState,
-  nextPlayer: PlayerState,
-  landmarks: readonly LandmarkDefinition[] = LANDMARKS,
-): LandmarkDefinition | null {
-  return landmarks.find((landmark) => {
-    const { width, height, top } = landmark.interaction.hitbox;
-    const hitbox = { left: landmark.x - width / 2, right: landmark.x + width / 2, top, bottom: top + height };
-    const previouslyOverlapped = overlaps(previousPlayer, hitbox);
-    return !previouslyOverlapped && overlaps(nextPlayer, hitbox);
-  }) ?? null;
-}
-
-function overlaps(player: PlayerState, box: { left: number; right: number; top: number; bottom: number }): boolean {
-  return player.x < box.right
-    && player.x + player.width > box.left
-    && player.y < box.bottom
-    && player.y + player.height > box.top;
 }

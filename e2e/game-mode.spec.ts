@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 
-test('jumping near a landmark opens its card and game controls remain responsive', async ({ page, browser }, testInfo) => {
+test('landmarks only open on explicit interaction and the game stays responsive', async ({ page, browser }, testInfo) => {
   const browserErrors: string[] = [];
   const captureErrors = (target: typeof page) => {
     target.on('pageerror', (error) => browserErrors.push(error.message));
@@ -27,17 +27,15 @@ test('jumping near a landmark opens its card and game controls remain responsive
   await expect(scene.locator('[data-landmark-id]')).toHaveCount(6);
   await expect(scene.getByRole('button')).toHaveCount(0);
   await expect(page.getByRole('img', { name: 'Guilherme, personagem do portfólio' })).toBeVisible();
-  await expect(page.locator('[data-landmark-id="presentation"][data-nearby="true"]')).toContainText('Salte até o ícone para abrir');
+  await expect(page.locator('[data-landmark-id="presentation"][data-nearby="true"]')).toContainText('Enter ou Interagir para abrir');
   await expect(page.getByRole('dialog')).toHaveCount(0);
   await page.screenshot({ path: testInfo.outputPath('game-desktop.png') });
 
   await scene.focus();
-  await page.keyboard.press('Enter');
-  await expect(page.getByRole('dialog')).toHaveCount(0);
-  await page.keyboard.down('Space');
-  await page.waitForTimeout(80);
+  await page.keyboard.press('Space');
   await expect(page.getByRole('dialog')).toHaveCount(0);
   const presentationPanel = page.getByRole('dialog', { name: 'Guilherme Niederle' });
+  await page.keyboard.press('Enter');
   await expect(presentationPanel).toBeVisible();
   await expect(presentationPanel).toBeFocused();
   await expect(page.getByRole('dialog')).toHaveCount(1);
@@ -47,21 +45,15 @@ test('jumping near a landmark opens its card and game controls remain responsive
   await expect(page.getByRole('dialog')).toHaveCount(1);
   await expect(character).toHaveAttribute('data-x', pausedX ?? '');
   expect(await world.evaluate((element) => (element as HTMLElement).style.transform)).toBe(pausedCamera);
-  await page.keyboard.up('Space');
   await page.keyboard.press('Escape');
   await expect(presentationPanel).toHaveCount(0);
   await expect(scene).toBeFocused();
 
   await page.keyboard.down('ArrowRight');
-  await page.waitForTimeout(1700);
+  await page.waitForTimeout(1100);
   await page.keyboard.up('ArrowRight');
-  await page.waitForTimeout(450);
-  await expect(page.locator('[data-nearby="true"]')).toHaveCount(0);
-  await page.keyboard.press('Space');
-  await page.waitForTimeout(120);
   await expect(page.getByRole('dialog')).toHaveCount(0);
-  await expect.poll(() => character.getAttribute('data-state')).toBe('rising');
-  await expect.poll(() => character.getAttribute('data-state'), { timeout: 2000 }).toBe('idle');
+  expect(Number(await character.getAttribute('data-x'))).toBeGreaterThan(300);
 
   const expectedCards = [
     { id: 'career', title: 'Trajetória profissional', content: 'SoftExpert' },
@@ -72,22 +64,12 @@ test('jumping near a landmark opens its card and game controls remain responsive
   ];
 
   for (const card of expectedCards) {
+    await scene.focus();
     await page.keyboard.down('ArrowRight');
     await expect(page.locator(`[data-landmark-id="${card.id}"][data-nearby="true"]`)).toBeVisible({ timeout: 7000 });
-    const landmark = page.locator(`[data-landmark-id="${card.id}"]`);
-    const landmarkX = Number(await landmark.getAttribute('data-world-x'));
-    await expect.poll(async () => {
-      const playerX = Number(await character.getAttribute('data-x'));
-      return playerX + 28;
-    }).toBeGreaterThanOrEqual(landmarkX - 115);
+    await expect(page.getByRole('dialog')).toHaveCount(0);
     await page.keyboard.up('ArrowRight');
-    await expect.poll(() => character.getAttribute('data-state')).toBe('idle');
-    await expect.poll(async () => {
-      const playerX = Number(await character.getAttribute('data-x'));
-      return Math.abs(playerX + 28 - landmarkX);
-    }).toBeLessThan(78);
-    await scene.focus();
-    await page.keyboard.down('Space');
+    await page.keyboard.press('Enter');
     const panel = page.getByRole('dialog', { name: card.title });
     await expect(panel).toBeVisible();
     await expect(panel).toContainText(card.content);
@@ -103,15 +85,15 @@ test('jumping near a landmark opens its card and game controls remain responsive
   await expect.poll(() => character.getAttribute('data-state'), { timeout: 2000 }).toBe('idle');
   await expect(page.locator('[data-landmark-id="contact"][data-nearby="true"]')).toBeVisible();
   await scene.focus();
-  await page.keyboard.down('Space');
+  await page.keyboard.press('Enter');
   await expect(page.getByRole('dialog', { name: 'Contact' })).toBeVisible();
   await expect(page.getByRole('dialog')).toContainText('WhatsApp');
-  await page.keyboard.up('Space');
   await page.getByRole('button', { name: 'Close panel' }).click();
 
   await page.getByRole('button', { name: 'Institutional mode' }).click();
   await expect(page.getByRole('heading', { level: 1, name: 'Guilherme Niederle' })).toBeVisible();
   await expect(page.getByTestId('institutional-header')).toBeVisible();
+  await page.setViewportSize({ width: 390, height: 844 });
   await page.getByTestId('institutional-menu-toggle').click();
   await page.getByRole('button', { name: 'Game mode' }).click();
   await expect(gameHeader).toBeVisible();
@@ -133,27 +115,33 @@ test('jumping near a landmark opens its card and game controls remain responsive
     const controlsBounds = await gameControls.boundingBox();
     const renderedScale = Number(await world.getAttribute('data-render-scale'));
     const cameraX = Number(await world.getAttribute('data-camera-x'));
+    const presentationLabel = await scene.locator('[data-landmark-id="presentation"] > span:first-of-type').boundingBox();
     expect(bounds?.width).toBe(viewport.width);
     expect(bounds?.height).toBeLessThan(viewport.height);
     expect(controlsBounds?.y).toBeGreaterThanOrEqual((bounds?.y ?? 0) + (bounds?.height ?? 0));
     expect((controlsBounds?.y ?? 0) + (controlsBounds?.height ?? 0)).toBeLessThanOrEqual(viewport.height);
     expect(renderedScale).toBeGreaterThanOrEqual(0.28);
-    expect(renderedScale).toBeLessThanOrEqual(0.65);
+    expect(renderedScale).toBeLessThanOrEqual(0.72);
+    expect(presentationLabel?.height).toBeGreaterThanOrEqual(9);
     expect(cameraX).toBeGreaterThanOrEqual(0);
     expect(cameraX).toBeLessThanOrEqual(Math.max(0, 4800 - viewport.width / renderedScale));
     expect(Number(await character.getAttribute('data-x'))).toBe(playerXBeforeResize);
     expect(await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth)).toBe(false);
 
     if (viewport.width === 390) {
+      await page.reload();
+      await expect(gameHeader).toBeVisible();
+      await expect.poll(async () => Number(await world.getAttribute('data-render-scale'))).toBeGreaterThan(0);
       await page.screenshot({ path: testInfo.outputPath('game-mobile.png') });
+      await scene.focus();
       const cameraAtStart = await world.evaluate((element) => (element as HTMLElement).style.transform);
       const initialX = Number(await character.getAttribute('data-x'));
-      await scene.focus();
       await page.keyboard.down('ArrowRight');
       await page.waitForTimeout(1500);
+      await page.keyboard.up('ArrowRight');
+      await expect(page.getByRole('dialog')).toHaveCount(0);
       expect(Number(await character.getAttribute('data-x'))).toBeGreaterThan(initialX + 400);
       expect(await world.evaluate((element) => (element as HTMLElement).style.transform)).not.toBe(cameraAtStart);
-      await page.keyboard.up('ArrowRight');
       await page.waitForTimeout(500);
       await page.keyboard.press('Space');
       await expect(character).toHaveAttribute('data-state', 'rising');
@@ -172,9 +160,22 @@ test('jumping near a landmark opens its card and game controls remain responsive
   captureErrors(touchPage);
   await touchPage.goto('/');
   await touchPage.getByRole('button', { name: 'Pular' }).tap();
+  await expect(touchPage.getByRole('dialog')).toHaveCount(0);
+  await expect(touchPage.getByTestId('game-interact')).toContainText('Interagir');
+  await touchPage.getByTestId('game-interact').tap();
   await expect(touchPage.getByRole('dialog', { name: 'Guilherme Niederle' })).toBeVisible();
   await touchPage.getByRole('button', { name: 'Fechar painel' }).tap();
-  await expect(touchPage.getByRole('button', { name: 'Pular' })).toBeFocused();
+  const touchCdp = await touchContext.newCDPSession(touchPage);
+  const rightButton = touchPage.getByRole('button', { name: 'Mover para a direita' });
+  const rightBounds = await rightButton.boundingBox();
+  await touchCdp.send('Input.dispatchTouchEvent', {
+    type: 'touchStart',
+    touchPoints: [{ x: (rightBounds?.x ?? 0) + (rightBounds?.width ?? 0) / 2, y: (rightBounds?.y ?? 0) + (rightBounds?.height ?? 0) / 2 }],
+  });
+  await touchPage.waitForTimeout(800);
+  await expect(touchPage.getByRole('dialog')).toHaveCount(0);
+  expect(Number(await touchPage.getByTestId('platformer-player').getAttribute('data-x'))).toBeGreaterThan(250);
+  await touchCdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
   await touchContext.close();
 
   const landscapeTouchContext = await browser.newContext({ viewport: { width: 844, height: 390 }, isMobile: true, hasTouch: true });
@@ -184,7 +185,7 @@ test('jumping near a landmark opens its card and game controls remain responsive
   const landscapeControls = landscapeTouchPage.getByTestId('game-controls');
   await expect(landscapeControls.getByRole('button', { name: 'Mover para a esquerda' })).toBeVisible();
   await expect(landscapeControls.getByRole('button', { name: 'Mover para a direita' })).toBeVisible();
-  await landscapeControls.getByRole('button', { name: 'Pular' }).tap();
+  await landscapeControls.getByTestId('game-interact').tap();
   await expect(landscapeTouchPage.getByRole('dialog', { name: 'Guilherme Niederle' })).toBeVisible();
   await landscapeTouchPage.getByRole('button', { name: 'Fechar painel' }).tap();
   const landscapeSceneBounds = await landscapeTouchPage.locator('#game-world').boundingBox();

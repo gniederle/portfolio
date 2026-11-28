@@ -12,7 +12,7 @@ Use this skill when changing responsive behavior, controls, panels, navigation, 
 - Support desktop, tablet, and mobile from the component and layout design, not as a final shrink-to-fit pass.
 - Preserve one continuous horizontal world. On small screens, reframe or follow the relevant part of the world; do not merely scale the full desktop panorama until landmarks and character become unreadable.
 - Keep the six points of interest recognizable and reachable through the character in game mode. Do not add a section menu to the game header; the header contains only the institutional-mode switch and language selector. The institutional mode provides conventional direct navigation to all sections without requiring gameplay.
-- Provide keyboard controls on desktop and comfortable touch controls on mobile for moving and jumping. Game landmarks activate when the character contacts their activation areas; mouse selection of landmarks is not part of game mode. Keep institutional navigation usable by keyboard, mouse, and touch.
+- Provide keyboard controls on desktop and comfortable touch controls on mobile for moving, jumping, and explicitly interacting. Proximity only shows which point is nearby; contact must not block movement or open a card. Enter opens the nearby card on keyboard, and a touch Interact button provides the same action on mobile. Mouse selection of landmarks is not part of game mode. Keep institutional navigation usable by keyboard, mouse, and touch.
 - Adapt information panels to available space. On mobile, allow a near-full-screen panel with readable content, internal scrolling as needed, and a prominent close control.
 
 ## Accessibility requirements

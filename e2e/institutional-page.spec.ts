@@ -24,6 +24,12 @@ test('institutional page supports navigation, language, keyboard, and responsive
   await page.keyboard.press('Enter');
   await expect(page.locator('#main-content')).toBeFocused();
 
+  await expect(menuToggle).toBeHidden();
+  await expect(navigation).toBeVisible();
+  await expect(navigation.getByRole('link', { name: 'Apresentação' })).toBeVisible();
+  await page.screenshot({ path: testInfo.outputPath('institutional-desktop.png'), fullPage: true });
+
+  await page.setViewportSize({ width: 390, height: 844 });
   await expect(menuToggle).toBeVisible();
   await expect(menuToggle).toHaveAttribute('aria-expanded', 'false');
   await expect(navigation).toBeHidden();
@@ -46,8 +52,6 @@ test('institutional page supports navigation, language, keyboard, and responsive
   await expect(institutionalHeader.getByRole('button', { name: 'Modo jogo' })).toBeVisible();
   await expect(page.locator('#contributions')).toHaveCount(0);
   expect(await page.evaluate(() => getComputedStyle(document.documentElement).scrollBehavior)).toBe('smooth');
-
-  await page.screenshot({ path: testInfo.outputPath('institutional-desktop.png'), fullPage: true });
 
   await menuToggle.click();
   await menuToggle.focus();
@@ -110,8 +114,13 @@ test('institutional page supports navigation, language, keyboard, and responsive
   ]) {
     await page.setViewportSize(viewport);
     await expect(page.getByRole('heading', { level: 1, name: 'Guilherme Niederle' })).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Abrir navegação' })).toBeVisible();
-    await expect(page.getByRole('navigation', { name: 'Navegação principal' })).toBeHidden();
+    if (viewport.width > 1024) {
+      await expect(page.getByTestId('institutional-menu-toggle')).toBeHidden();
+      await expect(page.getByRole('navigation', { name: 'Navegação principal' })).toBeVisible();
+    } else {
+      await expect(page.getByRole('button', { name: 'Abrir navegação' })).toBeVisible();
+      await expect(page.getByRole('navigation', { name: 'Navegação principal' })).toBeHidden();
+    }
     const hasHorizontalOverflow = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth);
     expect(hasHorizontalOverflow, `unexpected horizontal overflow at ${viewport.width}px`).toBe(false);
     await expect(institutionalHeader).toHaveCSS('position', 'sticky');

@@ -180,6 +180,57 @@
   .menuPanel { right: 1rem; width: min(32rem, calc(100vw - 2rem)); }
 }
 
+@media (min-width: 64.01rem) {
+  .topBar { display: none; }
+
+  .menuPanel {
+    position: static;
+    display: flex;
+    width: min(100% - 3rem, 76rem);
+    min-height: 4rem;
+    max-height: none;
+    align-items: center;
+    justify-content: space-between;
+    gap: .75rem;
+    overflow: visible;
+    margin-inline: auto;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    opacity: 1;
+    transform: none;
+    visibility: visible;
+    pointer-events: auto;
+    transition: none;
+  }
+
+  .navigationList {
+    display: flex;
+    flex: 1 1 auto;
+    align-items: center;
+    justify-content: space-between;
+    gap: .1rem;
+  }
+
+  .navigationList a {
+    min-height: 2.75rem;
+    padding: .35rem .4rem;
+    font-size: .76rem;
+    white-space: nowrap;
+  }
+
+  .menuActions {
+    flex: 0 0 auto;
+    gap: .5rem;
+    padding: 0;
+    border: 0;
+  }
+
+  .gameModeButton { min-height: 2.6rem; padding-inline: .65rem; }
+  .languageButton { min-width: 2.4rem; min-height: 2.6rem; }
+}
+
 @media (max-width: 26rem) {
   .menuPanel { padding: .75rem; }
   .navigationList { grid-template-columns: 1fr; }

@@ -11,8 +11,13 @@ export interface GameMessages {
   sceneLabel: string;
   characterLabel: string;
   positionLabel: string;
+  nearbyLabel: string;
+  moveHint: string;
   jumpHint: string;
-  jumpPrompt: string;
+  interactHint: string;
+  interactionPrompt: string;
+  interact: string;
+  interactUnavailable: string;
   contactIntro: string;
   technologies: string;
   phone: string;
@@ -29,12 +34,17 @@ export const gameMessages: Record<Language, GameMessages> = {
     moveRight: 'Mover para a direita',
     jump: 'Pular',
     closePanel: 'Fechar painel',
-    closeHint: 'Pressione Escape para retornar ao cenário.',
+    closeHint: 'Pressione Escape para fechar e voltar ao cenário.',
     sceneLabel: 'Cenário horizontal do portfólio',
     characterLabel: 'Guilherme, personagem do portfólio',
     positionLabel: 'Posição do personagem',
-    jumpHint: 'Salte e toque o ícone de um ponto de interesse para abrir o card.',
-    jumpPrompt: 'Salte até o ícone para abrir',
+    nearbyLabel: 'Ponto próximo',
+    moveHint: 'mover',
+    jumpHint: 'pular',
+    interactHint: 'interagir',
+    interactionPrompt: 'Enter ou Interagir para abrir',
+    interact: 'Interagir',
+    interactUnavailable: 'Interagir (aproxime-se de um ponto)',
     contactIntro: 'Para conversar sobre oportunidades ou assuntos profissionais, escolha um dos canais disponíveis.',
     technologies: 'Tecnologias',
     phone: 'WhatsApp',
@@ -49,12 +59,17 @@ export const gameMessages: Record<Language, GameMessages> = {
     moveRight: 'Move right',
     jump: 'Jump',
     closePanel: 'Close panel',
-    closeHint: 'Press Escape to return to the scene.',
+    closeHint: 'Press Escape to close and return to the scene.',
     sceneLabel: 'Horizontal portfolio scene',
     characterLabel: 'Guilherme, portfolio character',
     positionLabel: 'Character position',
-    jumpHint: 'Jump into a point of interest icon to open its card.',
-    jumpPrompt: 'Jump into the icon to open',
+    nearbyLabel: 'Nearby point',
+    moveHint: 'move',
+    jumpHint: 'jump',
+    interactHint: 'interact',
+    interactionPrompt: 'Press Enter or Interact to open',
+    interact: 'Interact',
+    interactUnavailable: 'Interact (move closer to a point)',
     contactIntro: 'For professional conversations or opportunities, choose one of the available channels.',
     technologies: 'Technologies',
     phone: 'WhatsApp',
